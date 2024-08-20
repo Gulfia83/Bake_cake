@@ -10,11 +10,10 @@ admin.site.register(Catalog)
 admin.site.register(Cake)
 
 
-
 @admin.register(LinkClick)
 class LinkClickAdmin(admin.ModelAdmin):
     list_display = (
         "url",
         "click_count",
-        "click_count",
+        "last_clicked",
     )
