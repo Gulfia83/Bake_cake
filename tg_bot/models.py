@@ -5,13 +5,22 @@ class Level(models.Model):
     number = models.IntegerField(verbose_name="Число уровней")
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
+    class Meta:
+        verbose_name_plural = 'Уровни'
+
     def __str__(self):
-        return f"{self.number} уровня"
+        if self.number == 1:
+            return f"{self.number} уровень"
+        else:
+            return f"{self.number} уровня"
 
 
 class Shape(models.Model):
     name = models.CharField(verbose_name="Форма", max_length=20)
     price = models.FloatField(verbose_name="Цена", default=0.0)
+
+    class Meta:
+        verbose_name_plural = 'Форма'
 
     def __str__(self):
         return self.name
@@ -21,6 +30,9 @@ class Topping(models.Model):
     name = models.CharField(verbose_name="Топпинг", max_length=50)
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
+    class Meta:
+        verbose_name_plural = 'Топпинги'
+
     def __str__(self):
         return self.name
 
@@ -29,6 +41,9 @@ class Berries(models.Model):
     name = models.CharField(verbose_name="Ягоды", max_length=50)
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
+    class Meta:
+        verbose_name_plural = 'Ягоды'
+
     def __str__(self):
         return self.name
 
@@ -36,6 +51,9 @@ class Berries(models.Model):
 class Decor(models.Model):
     name = models.CharField(verbose_name="Декор", max_length=50)
     price = models.FloatField(verbose_name="Цена", default=0.0)
+
+    class Meta:
+        verbose_name_plural = 'Декор'
 
     def __str__(self):
         return self.name
@@ -46,6 +64,9 @@ class Catalog(models.Model):
     description = models.TextField(verbose_name="Описание")
     price = models.FloatField(verbose_name="Цена")
     image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта")
+
+    class Meta:
+        verbose_name_plural = 'Каталог'
 
     def __str__(self):
         return self.title
@@ -60,6 +81,9 @@ class Cake(models.Model):
     decor = models.OneToOneField(Decor, on_delete=models.SET_NULL, null=True, blank=True)
     text = models.TextField(verbose_name="Надпись на торте", max_length=200, null=True, blank=True)
     price = models.FloatField(default=0.0, verbose_name="Цена")
+
+    class Meta:
+        verbose_name_plural = 'Торты'
 
     def __str__(self):
         return self.title
