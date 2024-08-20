@@ -50,8 +50,12 @@ WSGI_APPLICATION = 'Bake_cake.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Используем PostgreSQL
+        'NAME': 'bake_cake',                        # Имя базы данных
+        'USER': 'devman',                           # Имя пользователя
+        'PASSWORD': 'dev123',                       # Пароль
+        'HOST': '79.174.81.169',                    # IP-адрес сервера
+        'PORT': '5432',                             # Порт
     }
 }
 
