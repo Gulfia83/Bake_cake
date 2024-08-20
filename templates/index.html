@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'Style.css' %}">
+	<!-- Для разработки: -->
+	<script src="https://unpkg.com/vue@3"></script>
+	<!-- Для продакшина: -->
+	<!-- <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script> -->
+	<script src="https://unpkg.com/vee-validate"></script>
+	<title>Тортики</title>
+</head>
+<body>
+<header class="navbar navbar-expand-xl navbar-light fixed-top bg-white py-4">
+	<nav class="container">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<a class="navbar-brand" href="#">
+			<img src="{% static 'img/Logo.svg' %}" alt="CakeBake">
+		</a>
+		<div class="collapse navbar-collapse justify-content-end" id="navbar">
+			<ul class="navbar-nav">
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="#step3">Создать торт</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="#step2">Каталог</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="#step4">Оплата и доставка</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="#Contacts">Контакты</a>
+				</li>
+				<li class="nav-item d-block d-xl-flex flex-column align-items-end me-5">
+					<small class="fw-lighter text-decoration-none fs_12 cake_blue">8 (495) 000-00-00</small>
+					<small class="fw-lighter text-decoration-none fs_12 cake_blue">Пн - Вс 10:00—20:00</small>
+				</li>
+				<li class="nav-item d-flex align-items-center">
+					<a class="nav-link fw-lighter me-1 cake_blue position-relative" href="#">
+						<img src="{% static 'img/shopping-cart.svg' %}" alt="">
+						<!--метка на иконке, убрать класс d-none чтоб появилась-->
+						<span class="position-absolute translate-middle badge rounded-pill cake__bg_pink fs_8 d-none">1</span>
+					</a>
+					<a class="nav-link fw-lighter me-1 cake_blue position-relative" href="#RegModal" data-bs-toggle="modal">
+						<img src="{% static 'img/user.svg' %}" alt="">
+						<!--метка на иконке, убрать класс d-none чтоб появилась-->
+						<span class="position-absolute translate-middle badge rounded-pill cake__bg_pink fs_8 d-none">1</span>
+					</a>
+					<a class="nav-link fw-lighter cake_grey fs_12 d-none" href="#">
+						Ирина
+					</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+</header>
+<main>
+	<div class="container mt-header">
+		<aside class="modal fade" id="RegModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="RegModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content px-4 cake__modal">
+					<div class="modal-header border-0 pb-0 pt-4">
+						<button @click="Reset" type="button" class="btn-close border rounded-pill" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-header border-0 py-0">
+						<label for="reg" class="modal-title font_Gogh fs_40 cake_blue" id="RegModalLabel">Вход / Регистрация</label>
+					</div>
+					<form class="d-none">
+						<input v-model="RegInput" type="text" name="REG">
+						<button type="submit" ref="HiddenFormSubmitReg">reg</button>
+					</form>
+					<v-form :validation-schema="RegSchema" class="modal-body position-relative d-flex flex-column align-items-center px-5 pb-4" @submit="RegSubmit">
+						<v-field v-if="RegInput !== 'Регистрация успешна'" v-model="RegInput" name="reg" type="text" id="reg" :placeholder="Step === `Number` ? `Введите ваш номер` : `Введите код`" class="form-control cake__textinput"></v-field>
+						<v-field v-if="Step === 'Number'" v-model="RegInput" type="phone" name="phone_format" class="d-none"></v-field>
+						<v-field v-if="Step === 'Code'" v-model="RegInput" type="phone" name="code_format" class="d-none"></v-field>
+						<button v-if="RegInput !== 'Регистрация успешна'" type="submit" class="btn text-white w-100 rounded-pill mt-3 py-2 shadow-none cake__button fs_12 cake__bg_pink">Отправить</button>
+						<span v-if="RegInput === 'Регистрация успешна'" class="cake_grey text-center">Регистрация успешна</span>
+						<small class="fs_12 cake_pink text-center position-absolute bottom-0"><error-message name="reg">
+							<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-exclamation-circle mb-1" viewBox="0 0 16 16">
+								<path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+								<path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+							</svg>
+						  {% verbatim %}
+							{{Step === 'Number' ? 'Введите номер' : 'Введите код'}}</error-message></small>
+						  {% endverbatim %}
+						<error-message name="phone_format" class="fs_12 cake_pink text-center position-absolute bottom-0"></error-message>
+						<error-message name="code_format" class="fs_12 cake_pink text-center position-absolute bottom-0"></error-message>
+					</v-form>
+
+					<div class="modal-footer d-flex flex-column justify-content-between align-items-center text-center border-0 mx-5">
+					  {% verbatim %}
+						<p class="fs_12 cake_grey">{{Step === `Number` ? `Нажимая на кнопку, вы соглашаетесь на обработку персональных данных в соответствии с политикой конфиденциальности` : Step === 'Code' ? `Осталось времени: 05:00` : ``}}</p>
+					  {% endverbatim %}
+						<a href="#" v-if="Step === `Code`" @click.prevent="ToRegStep1" class="text-decoration-none cake_pink fs_12">изменить данные</a>
+					</div>
+				</div>
+			</div>
+		</aside>
+
+		<article class="row position-relative">
+			<div class="col-12 col-xxl-6 d-flex justify-content-center">
+				<img src="{% static 'img/Cake.png' %}" alt="">
+			</div>
+			<div class="col-12 col-xxl-6 d-flex flex-column justify-content-center align-items-center align-items-xxl-start">
+				<h1 class="font_Gogh fs_40 cake_blue">Создайте торт своей мечты</h1>
+				<span class="cake_grey fw-lighter">Уникальность и красота в пару кликов</span>
+				<a href="#step3" class="btn text-white rounded-pill px-5 mt-3 shadow-none cake__button cake__bg_pink">Создать</a>
+			</div>
+			<div class="position-fixed bottom-0 m-5 w-auto end-0">
+				<div class="d-flex">
+					<div class="cake__bg_blue rounded-pill p-3 border">
+						<img src="{% static 'img/intercom.svg' %}" alt="">
+					</div>
+				</div>
+			</div>
+		</article>
+
+		<article class="row pt-header d-flex justify-content-center" id="step2">
+			<h2 class="font_Gogh fs_40 cake_blue text-center mb-3">По любому поводу</h2>
+
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="card border-0 cake__hover">
+					<a href="#" class="card-img-overlay"></a>
+					<img src="{% static 'img/image1.png' %}" alt="" class="">
+					<span class="cake_blue mt-4 fw-lighter mb-4 text-center">На чаепитие</span>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="card border-0 cake__hover">
+					<a href="#" class="card-img-overlay"></a>
+					<img src="{% static 'img/image2.png' %}" alt="" class="">
+					<span class="cake_blue mt-4 fw-lighter mb-4 text-center">На день рождения</span>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="card border-0 cake__hover">
+					<a href="#" class="card-img-overlay"></a>
+					<img src="{% static 'img/image3.png' %}" alt="" class="">
+					<span class="cake_blue mt-4 fw-lighter mb-4 text-center">На свадьбу</span>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center mt-2">
+				<button class="btn text-white rounded-pill shadow-none cake__button cake__bg_pink">Открыть каталог</button>
+			</div>
+		</article>
+
+		<article class="row pt-header text-center d-flex justify-content-center">
+			<h2 class="font_Gogh fs_40 cake_blue text-center mb-5">Оплата и доставка</h2>
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="d-flex align-items-center" style="height: 120px">
+					<img src="{% static 'img/clock.svg' %}" alt="">
+				</div>
+				<span class="cake_blue mt-4 fw-lighter">Изготовление 24 ч.</span>
+				<p class="cake_grey mt-3">Срочный заказ (менее 24 ч.) увеличивает стоимость заказа на 20%</p>
+			</div>
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="d-flex align-items-center" style="height: 120px">
+					<img src="{% static 'img/card.svg' %}" alt="">
+				</div>
+				<span class="cake_blue mt-4 fw-lighter">100% предоплата</span>
+				<p class="cake_grey mt-3">Оплата осуществляется банковской картой или в нашем ресторане наличными</p>
+			</div>
+			<div class="col-12 col-sm-6 col-lg-4 d-flex flex-column align-items-center">
+				<div class="d-flex align-items-center" style="height: 120px">
+					<img src="{% static 'img/deliv.svg' %}" alt="">
+				</div>
+				<span class="cake_blue mt-4 fw-lighter">Доставка по Москве</span>
+				<p class="cake_grey mt-3">Готовый заказ доставят по адресу в заявке с 10:00 до 23:00 в пределах МКАД</p>
+			</div>
+			<div class="d-flex justify-content-center">
+				<a href="#step3" class="btn text-white rounded-pill mt-3 shadow-none cake__button cake__bg_pink">Оформить заказ</a>
+			</div>
+		</article>
+
+		<article id="VueApp">
+			<section class="row pt-header" id="step3">
+				<h2 class="font_Gogh fs_40 cake_blue text-center">Создать свой торт</h2>
+				<v-form :validation-schema="schema1" @submit="ToStep4">
+					<div class="d-flex justify-content-end align-items-center position-relative">
+				<span class="cake_pink position-absolute start-0 top-50">
+					<error-message name="lvls" class="from__alert"></error-message>
+					<error-message name="form" class="from__alert"></error-message>
+					<error-message name="topping" class="from__alert"></error-message>
+				</span>
+						<span class="z-index-1 fs_40 cake_pink text-end mt-5" id="cost">{{ Cost }}₽</span>
+					</div>
+					<div class="d-flex align-items-center flex-wrap mb-3">
+						<span class="me-3 fs_40 cake_blue">Количество уровней</span>
+						<v-field v-model="Levels" type="radio" name="lvls" id="num1" value="1" class="d-none cake__input"></v-field>
+						<label for="num1" class="mx-2 px-3 py-1 cake_grey cake__label">1</label>
+						<v-field v-model="Levels" type="radio" name="lvls" id="num2" value="2" class="d-none cake__input"></v-field>
+						<label for="num2" class="mx-2 px-3 py-1 cake_grey cake__label">2</label>
+						<v-field v-model="Levels" type="radio" name="lvls" id="num3" value="3" class="d-none cake__input"></v-field>
+						<label for="num3" class="mx-2 px-3 py-1 cake_grey cake__label">3</label>
+					</div>
+
+					<div class="d-flex align-items-center flex-wrap mb-3">
+						<span class="me-3 fs_40 cake_blue">Форма</span>
+						<v-field v-model="Form" type="radio" name="form" id="form1" value="1" class="d-none cake__input"></v-field>
+						<label for="form1" class="mx-2 px-3 py-1 cake_grey cake__label">Круг</label>
+						<v-field v-model="Form" type="radio" name="form" id="form2" value="2" class="d-none cake__input"></v-field>
+						<label for="form2" class="mx-2 px-3 py-1 cake_grey cake__label">Квадрат</label>
+						<v-field v-model="Form" type="radio" name="form" id="form3" value="3" class="d-none cake__input"></v-field>
+						<label for="form3" class="mx-2 px-3 py-1 cake_grey cake__label">Прямоугольник</label>
+					</div>
+					<div class="d-flex align-items-center flex-wrap mb-3">
+						<span class="me-3 fs_40 cake_blue">Топпинг</span>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping1" value="1" class="d-none cake__input"></v-field>
+						<label for="topping1" class="mx-2 px-3 py-1 cake_grey cake__label">Без</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping2" value="2" class="d-none cake__input"></v-field>
+						<label for="topping2" class="mx-2 px-3 py-1 cake_grey cake__label">Белый соус</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping3" value="3" class="d-none cake__input"></v-field>
+						<label for="topping3" class="mx-2 px-3 py-1 cake_grey cake__label">Карамельный</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping4" value="4" class="d-none cake__input"></v-field>
+						<label for="topping4" class="mx-2 px-3 py-1 cake_grey cake__label">Кленовый</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping5" value="5" class="d-none cake__input"></v-field>
+						<label for="topping5" class="mx-2 px-3 py-1 cake_grey cake__label">Черничный</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping6" value="6" class="d-none cake__input"></v-field>
+						<label for="topping6" class="mx-2 px-3 py-1 cake_grey cake__label">Молочный шоколад</label>
+						<v-field v-model="Topping" type="radio" name="topping" id="topping7" value="7" class="d-none cake__input"></v-field>
+						<label for="topping7" class="mx-2 px-3 py-1 cake_grey cake__label">Клубничный</label>
+					</div>
+					<h1 class="me-3 fs_40 cake_pink mb-3 mt-5">Дополнительно</h1>
+					<div class="d-flex align-items-center flex-wrap mb-3">
+						<span class="me-3 fs_40 cake_blue">Ягоды</span>
+						<v-field v-model="Berries" type="radio" name="berries" id="berries1" value="1" class="d-none cake__input"></v-field>
+						<label for="berries1" class="mx-2 px-3 py-1 cake_grey cake__label">Ежевика</label>
+						<v-field v-model="Berries" type="radio" name="berries" id="berries2" value="2" class="d-none cake__input"></v-field>
+						<label for="berries2" class="mx-2 px-3 py-1 cake_grey cake__label">Малина</label>
+						<v-field v-model="Berries" type="radio" name="berries" id="berries3" value="3" class="d-none cake__input"></v-field>
+						<label for="berries3" class="mx-2 px-3 py-1 cake_grey cake__label">Голубика</label>
+						<v-field v-model="Berries" type="radio" name="berries" id="berries4" value="4" class="d-none cake__input"></v-field>
+						<label for="berries4" class="mx-2 px-3 py-1 cake_grey cake__label">Клубника</label>
+					</div>
+					<div class="d-flex align-items-center flex-wrap mb-3">
+						<span class="me-3 fs_40 cake_blue">Декор</span>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor1" value="1" class="d-none cake__input"></v-field>
+						<label for="decor1" class="mx-2 px-3 py-1 cake_grey cake__label">Фисташки</label>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor2" value="2" class="d-none cake__input"></v-field>
+						<label for="decor2" class="mx-2 px-3 py-1 cake_grey cake__label">Безе</label>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor3" value="3" class="d-none cake__input"></v-field>
+						<label for="decor3" class="mx-2 px-3 py-1 cake_grey cake__label">Фундук</label>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor4" value="4" class="d-none cake__input"></v-field>
+						<label for="decor4" class="mx-2 px-3 py-1 cake_grey cake__label">Пекан</label>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor5" value="5" class="d-none cake__input"></v-field>
+						<label for="decor5" class="mx-2 px-3 py-1 cake_grey cake__label">Маршмеллоу</label>
+						<v-field v-model="Decor" type="radio" name="decor" id="decor6" value="6" class="d-none cake__input"></v-field>
+						<label for="decor6" class="mx-2 px-3 py-1 cake_grey cake__label">Марципан</label>
+					</div>
+					<div class="row mb-3">
+						<div class="col-5 col-md-4 col-lg-3">
+							<label class="me-3 fs_40 cake_blue" for="words">Надпись</label>
+						</div>
+						<div class="col-7 col-md-8 col-lg-9 pt-2">
+							<input v-model="Words" :class="Words ? 'cake__border_blue': ''" type="text" name="words" id="words" placeholder="Например: «С днем рождения!»..." class="form-control cake__textinput">
+						</div>
+					</div>
+					<div>
+						<label for="comment" class="cake_blue">Комментарий к заказу</label>
+						<textarea v-model="Comments" :class="Comments ? 'cake__border_blue': ''" name="comment" id="comment" rows="3" class="form-control mt-2 cake__textinput" style="resize: none"></textarea>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn text-white rounded-pill mt-3 shadow-none cake__button cake__bg_pink">Подтвердить</button>
+						<a href="#step4" ref="ToStep4" class="d-none"></a>
+					</div>
+				</v-form>
+			</section>
+
+			<section class="row pt-header" id="step4" v-if="Designed">
+				<form class="d-none">
+					<input v-model="Levels" value="1" type="radio" name="LEVELS">
+					<input v-model="Levels" value="2" type="radio" name="LEVELS">
+					<input v-model="Levels" value="3" type="radio" name="LEVELS">
+					<br>
+					<input v-model="Form" value="1" type="radio" name="FORM">
+					<input v-model="Form" value="2" type="radio" name="FORM">
+					<input v-model="Form" value="3" type="radio" name="FORM">
+					<br>
+					<input v-model="Topping" value="1" type="radio" name="TOPPING">
+					<input v-model="Topping" value="2" type="radio" name="TOPPING">
+					<input v-model="Topping" value="3" type="radio" name="TOPPING">
+					<input v-model="Topping" value="4" type="radio" name="TOPPING">
+					<input v-model="Topping" value="5" type="radio" name="TOPPING">
+					<input v-model="Topping" value="6" type="radio" name="TOPPING">
+					<input v-model="Topping" value="7" type="radio" name="TOPPING">
+					<br>
+					<input v-model="Berries" value="1" type="radio" name="BERRIES">
+					<input v-model="Berries" value="2" type="radio" name="BERRIES">
+					<input v-model="Berries" value="3" type="radio" name="BERRIES">
+					<input v-model="Berries" value="4" type="radio" name="BERRIES">
+					<br>
+					<input v-model="Decor" value="1" type="radio" name="DECOR">
+					<input v-model="Decor" value="2" type="radio" name="DECOR">
+					<input v-model="Decor" value="3" type="radio" name="DECOR">
+					<input v-model="Decor" value="4" type="radio" name="DECOR">
+					<input v-model="Decor" value="5" type="radio" name="DECOR">
+					<input v-model="Decor" value="6" type="radio" name="DECOR">
+					<br>
+					<input v-model="Words" type="text" name="WORDS">
+					<input v-model="Comments" type="text" name="COMMENTS">
+
+					<input v-model="Name" type="text" name="NAME">
+					<input v-model="Phone" type="tel" name="PHONE">
+					<input v-model="Email" type="email" name="EMAIL">
+					<input v-model="Address" type="text" name="ADDRESS">
+					<input v-model="Dates" type="date" name="DATE">
+					<input v-model="Time" type="time" name="TIME">
+					<input v-model="DelivComments" type="text" name="DELIVCOMMENTS">
+					<button type="submit" ref="HiddenFormSubmit">Submit Order</button>
+				</form>
+				<v-form :validation-schema="schema2" @submit="this.$refs.HiddenFormSubmit.click()">
+					<div class="col">
+						<div class="d-flex flex-column position-relative pb-5">
+							<h2 class="fs_40 font_Gogh cake_blue text-center align-self-center">Оформление заказа</h2>
+							<span class="cake_pink mt-2 position-absolute bottom-0">
+								<error-message name="name" class="from__alert"></error-message>
+								<error-message name="phone" class="from__alert"></error-message>
+								<error-message name="email" class="from__alert"></error-message>
+							</span>
+						</div>
+						<div class="row">
+							<div class="col-6 col-lg-4 d-flex flex-column">
+								<label for="name" class="my-1 fs_40 cake_blue">Имя</label>
+								<label for="phone" class="my-1 fs_40 cake_blue">Телефон</label>
+								<label for="email" class="my-1 fs_40 cake_blue">Почта</label>
+							</div>
+							<div class="col-6 col-lg-4 d-flex flex-column">
+								<div class="position-relative pb-1">
+									<v-field v-model="Name" :class="Name ? 'cake__border_blue': ''" type="text" name="name" id="name" placeholder="Введите ваше имя" class="form-control my-3 cake__textinput"></v-field>
+									<v-field v-model="Name" type="text" name="name_format" class="d-none"></v-field>
+									<error-message name="name_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+								</div>
+								<div class="position-relative pb-1">
+									<v-field v-model="Phone" :class="Phone ? 'cake__border_blue': ''" type="tel" name="phone" id="phone" placeholder="Введите номер" class="form-control my-3 cake__textinput"></v-field>
+									<v-field v-model="Phone" type="phone" name="phone_format" class="d-none"></v-field>
+									<error-message name="phone_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+								</div>
+								<div class="position-relative pb-1">
+									<v-field v-model="Email" :class="Email ? 'cake__border_blue': ''" type="email" name="email" id="email" placeholder="Введите почту" class="form-control my-3 cake__textinput"></v-field>
+									<v-field v-model="Email" type="email" name="email_format" class="d-none"></v-field>
+									<error-message name="email_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+								</div>
+							</div>
+							<div class="col-12 col-lg-4 d-flex justify-content-center justify-content-lg-end">
+								<div class="cake__card p-4 position-relative cake_grey">
+									<span class="cake__badge rounded-pill">?</span>
+									{% verbatim %}
+									<span>Количество уровней: {{ DATA.Levels[Levels] }}</span>
+									<span>Форма уровней: {{ DATA.Forms[Form] }}</span>
+									<p>Топинг: {{ DATA.Toppings[Topping] }}</p>
+									<span>Дополнительно:</span>
+									<ul>
+										<li>Ягоды: {{ DATA.Berries[Berries] }}</li>
+										<li>Декор: {{ DATA.Decors[Decor] }}</li>
+									</ul>
+									<span>{{ Words === '' ? 'Без надписи' : Words }}</span>
+									{% endverbatim %}
+								</div>
+							</div>
+						</div>
+						<div class="d-flex flex-column position-relative pb-4">
+							<h2 class="fs_40 cake_pink">Данные для доставки</h2>
+							<span class="cake_pink mt-2 position-absolute bottom-0">
+								<error-message name="address" class="from__alert"></error-message>
+								<error-message name="date" class="from__alert"></error-message>
+								<error-message name="time" class="from__alert"></error-message>
+							</span>
+						</div>
+
+						<div class="row">
+							<div class="col-6 col-lg-4 d-flex flex-column">
+								<label for="address" class="my-1 fs_40 cake_blue">Адрес</label>
+								<label for="date" class="my-1 fs_40 cake_blue">Дата</label>
+								<label for="time" class="my-1 fs_40 cake_blue">Время</label>
+							</div>
+							<div class="col-6 col-lg-4 d-flex flex-column">
+								<v-field v-model="Address" :class="Address ? 'cake__border_blue': ''" type="text" name="address" id="address" placeholder="Введите ваш адрес" class="form-control my-3 cake__textinput"></v-field>
+								<v-field v-model="Dates" :class="Dates ? 'cake__border_blue': ''" type="date" name="date" id="date" placeholder="ДД.ММ.ГГ" class="form-control my-3 cake__textinput"></v-field>
+								<v-field v-model="Time" :class="Time ? 'cake__border_blue': ''" type="time" name="time" id="time" placeholder="00:00" class="form-control my-3 cake__textinput"></v-field>
+							</div>
+						</div>
+						<div class="row mt-3">
+							<div class="col-12 col-md-6">
+								<label for="deliv-comment" class="cake_blue">Комментарий для курьера</label>
+								<textarea v-model="DelivComments" :class="DelivComments ? 'cake__border_blue': ''" id="deliv-comment" class="form-control cake__textinput mt-3" rows="2" style="resize: none"></textarea>
+							</div>
+							<div class="col-12 col-md-6 d-flex flex-column align-items-center align-items-md-end mt-3 mt-md-0">
+								<div class="d-flex">
+									<span class="cake_pink fs_40 fw-bold me-2">Итого: {{ Cost }}₽</span>
+								</div>
+								<button type="submit" class="btn btn_hover text-white rounded-pill mt-3 px-5 shadow-none cake__button cake__bg_pink">К оплате</button>
+							</div>
+						</div>
+					</div>
+				</v-form>
+			</section>
+		</article>
+	</div>
+</main>
+
+<footer class="mt-5 cake__bg_blue" id="Contacts">
+	<div class="container my-5 py-5">
+		<div class="row">
+			<div class="col-4 col-xl-2 d-flex flex-column">
+				<div>
+					<img src="{% static 'img/Logo.svg' %}" alt="CakeBake" class="mb-2">
+				</div>
+				<small class="text-white fs_12">©2022 CakeBake</small>
+				<small class="text-white fs_12">Все права защищены.</small>
+				<div class="flex-grow-1 d-flex align-items-end">
+					<small class="text-white fs_12">г. Москва,  Большой Козловский пер., д. 12</small>
+				</div>
+			</div>
+			<div class="col-4 col-xl-2 d-flex flex-column">
+				<a href="#" class="text-decoration-none text-white">На свадьбу</a>
+				<a href="#" class="text-decoration-none text-white">На день рождения</a>
+				<a href="#" class="text-decoration-none text-white">На чаепитие</a>
+			</div>
+			<div class="col-4 col-xl-2 d-flex flex-column">
+				<a href="#step3" class="text-decoration-none text-white">Создать торт</a>
+				<a href="#step2" class="text-decoration-none text-white">Каталог</a>
+				<a href="#Contacts" class="text-decoration-none text-white">Контакты</a>
+			</div>
+			<div class="col-12 col-xl-6 d-flex flex-column align-items-start align-items-xl-end mt-3 mt-xl-0">
+				<a href="https://vk.com/devmanorg"><img src="img/vk.svg" alt="VK" class="mb-3 mb-xl-5"></a>
+				<small class="text-white fs_12">8 (495) 000-00-00</small>
+				<small class="text-white fs_12">info@cakebake.ru</small>
+				<small class="text-white fs_12">Пн - Вс 10:00—20:00</small>
+			</div>
+		</div>
+	</div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<script src="{% static 'index.js' %}"></script>
+<script src="{% static 'registration.js' %}"></script>
+</body>
+</html>

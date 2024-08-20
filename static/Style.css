@@ -1,0 +1,135 @@
+@font-face {
+    font-family: Gogh;
+    src: url(fonts/Gogh-ExtraBold.otf);
+}
+@font-face {
+    font-family: Garet;
+    src: url(fonts/Garet-Book.ttf);
+}
+.font_Gogh {
+    font-family: Gogh;
+}
+html {
+    height: 100%;
+}
+* {
+    font-family: Garet, serif;
+    font-size: 16px;
+    font-weight: normal;
+}
+body {
+    background-color: white;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+.mt-header {
+    margin-top: calc(58px + 1.6rem);
+}
+.pt-header {
+    padding-top: calc(58px + 1.6rem);
+}
+.cake_pink {
+    color: #DA87A9 !important;
+}
+.cake__bg_pink {
+    background-color: #DA87A9 !important;
+}
+.cake_blue {
+    color: #5882CD !important;
+}
+.cake__bg_blue {
+    background-color: #5882CD !important;
+}
+.cake__border_blue {
+    border-color: #5882CD !important;
+}
+.cake_grey {
+    color: #8C99AA !important;
+}
+.cake__hover:hover span {
+    color: #DA87A9 !important;
+}
+.cake__button {
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25) !important;
+    border-radius: 15px;
+}
+.cake__button:hover {
+    box-shadow: none !important;
+}
+.cake__label {
+    border: 1px solid white;
+    border-radius: 15px;
+}
+.cake__label:hover {
+    border: 1px solid #5882CD;
+    color: #5882CD !important;
+}
+.cake__textinput {
+    border: 1px solid #8C99AA;
+    border-radius: 15px;
+    color: #5882CD !important;
+}
+li .cake__textinput:read-only {
+    box-shadow: none;
+    border: 1px solid white;
+    background-color: white;
+    color: #5882CD;
+}
+.cake__input:checked + .cake__label {
+    border: 1px solid #5882CD;
+    color: #DA87A9 !important;
+}
+.cake__card {
+    z-index: -1;
+    border: 1px solid #8C99AA;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    max-width: 255px;
+}
+.cake__badge {
+    position: absolute;
+    border: 1px solid #8C99AA;
+    height: 18px;
+    width: 18px;
+    top: 5px;
+    left: 5px;
+    font-size: 12px;
+    padding-left: 4px;
+}
+.cake__modal {
+    border: none;
+    max-width: 593px;
+    height: 310px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 15px;
+}
+.from__alert:not(:last-child):after {
+    content: ',';
+}
+.from__alert:first-child:before {
+    content: '⚠ Необходимо выбрать ';
+}
+.lk__order {
+    cursor: pointer;
+}
+.lk__order:hover {
+    color: #DA87A9 !important;
+}
+.fs_8 {
+    font-size: 8px;
+}
+.fs_12 {
+    font-size: 12px;
+}
+.fs_40 {
+    font-size: 40px;
+}
+.py-61 {
+    padding-top: 0.61rem;
+    padding-bottom: 0.61rem;
+}
+.z-index-1 {
+    z-index: -1;
+}

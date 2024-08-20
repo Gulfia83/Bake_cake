@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'Style.css' %}">
+	<!-- Для разработки: -->
+	<script src="https://unpkg.com/vue@3"></script>
+	<!-- Для продакшина: -->
+	<!-- <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script> -->
+	<script src="https://unpkg.com/vee-validate"></script>
+	<title>Личный кабинет</title>
+</head>
+<body>
+<header class="navbar navbar-expand-xl navbar-light fixed-top bg-white py-4">
+	<nav class="container">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<a class="navbar-brand" href="#">
+			<img src="{% static 'img/Logo.svg' %}" alt="CakeBake">
+		</a>
+		<div class="collapse navbar-collapse justify-content-end" id="navbar">
+			<ul class="navbar-nav">
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="{% url 'index' %}#step3">Создать торт</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="{% url 'index' %}#step2">Каталог</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="{% url 'index' %}#step4">Оплата и доставка</a>
+				</li>
+				<li class="nav-item me-5">
+					<a class="nav-link fw-lighter cake_blue" href="{% url 'index' %}#Contacts">Контакты</a>
+				</li>
+				<li class="nav-item d-block d-xl-flex flex-column align-items-end me-5">
+					<small class="fw-lighter text-decoration-none fs_12 cake_blue">8 (495) 000-00-00</small>
+					<small class="fw-lighter text-decoration-none fs_12 cake_blue">Пн - Вс 10:00—20:00</small>
+				</li>
+				<li class="nav-item d-flex align-items-center">
+					<a class="nav-link fw-lighter me-1 cake_blue position-relative" href="#">
+						<img src="{% static 'img/shopping-cart.svg' %}" alt="">
+						<span class="position-absolute translate-middle badge rounded-pill cake__bg_pink fs_8">1</span>
+					</a>
+					<a class="nav-link fw-lighter me-1 cake_blue position-relative" href="#">
+						<img src="{% static 'img/user.svg' %}" alt="">
+						<span class="position-absolute translate-middle badge rounded-pill cake__bg_pink fs_8">1</span>
+					</a>
+					<a class="nav-link fw-lighter cake_grey fs_12" href="#">
+						Ирина
+					</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+</header>
+<div class="container mt-header mb-5">
+	<div class="row mt-5">
+		<div class="col-12 col-xxl-6 d-flex justify-content-center">
+			<div><img src="{% static 'img/Cake2.png' %}" alt=""></div>
+		</div>
+		<div class="col-12 col-xxl-6 d-flex flex-column justify-content-center align-items-center align-items-xxl-start" id="LK">
+			<form class="d-none">
+				<input v-model="Name" name="NAME">
+				<input v-model="Phone" name="PHONE">
+				<input v-model="Email" name="EMAIL">
+				<button type="submit" ref="HiddenFormSubmit">Apply Changes</button>
+			</form>
+			<v-form :validation-schema="Schema" @submit="ApplyChanges">
+				<div class="d-flex w-100 justify-content-center justify-content-xxl-between align-items-center">
+					<h1 class="font_Gogh fs_40 cake_blue">Личный кабинет</h1>
+					<button v-if="!Edit" @click="Edit = true" class="btn shadow-none align-self-center">
+						<svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="#DA87A9" style="border-bottom: #DA87A9 2px solid" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+							<path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+						</svg>
+					</button>
+					<button v-if="Edit" type="submit" class="btn shadow-none align-self-center">
+						<svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" fill="#DA87A9" style="border-bottom: #DA87A9 2px solid" class="bi bi-check-lg" viewBox="0 0 16 16">
+							<path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+						</svg>
+					</button>
+				</div>
+				<div class="d-flex">
+					<ul class="list-group">
+						<li class="list-group-item border-0 ps-0">
+							<span class="fs_40 cake_blue">Имя</span>
+						</li>
+						<li class="list-group-item border-0 ps-0">
+							<h1 class="fs_40 cake_blue">Телефон</h1>
+						</li>
+						<li class="list-group-item border-0 ps-0">
+							<h1 class="fs_40 cake_blue">Почта</h1>
+						</li>
+					</ul>
+					<ul class="list-group">
+						<li class="list-group-item border-0 py-61 position-relative">
+							<v-field v-model="Name" type="text" name="name_format" id="name" :readonly="!Edit" class="form-control my-2 i cake__textinput"></v-field>
+							<error-message name="name_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+						</li>
+						<li class="list-group-item border-0 py-61 position-relative">
+							<v-field v-model="Phone" type="text" name="phone_format" id="phone" :readonly="!Edit" class="form-control my-2 cake__textinput"></v-field>
+							<error-message name="phone_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+						</li>
+						<li class="list-group-item border-0 py-61 position-relative">
+							<v-field v-model="Email" type="text" name="email_format" id="email" :readonly="!Edit" class="form-control my-2 cake__textinput"></v-field>
+							<error-message name="email_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+						</li>
+					</ul>
+				</div>
+			</v-form>
+			<h2 class="fs_40 cake_pink mt-5">Мои заказы</h2>
+			<span class="cake_grey">У вас еще нет заказов.</span>
+			<p class="cake_grey">Вы можете добавить торт из <a href="{% url 'index' %}#step2" class="text-decoration-none cake_pink">Каталога</a> или <a href="./index.html#step3" class="text-decoration-none cake_pink">Создать свой</a>.</p>
+			<span class="cake_grey">Есть вопросы?</span>
+			<span class="cake_grey">Воспользуйтесь нашим <a href="https://vk.com/devmanorg" class="text-decoration-none cake_pink">чат-ботом</a>.</span>
+			<button class="btn text-white rounded-pill align-self-end px-5 mt-3 shadow-none cake__button cake__bg_pink">Выйти</button>
+		</div>
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="{% static 'lk.js' %}"></script>
+</body>
+</html>
