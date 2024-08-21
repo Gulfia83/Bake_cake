@@ -67,11 +67,11 @@ class Decor(models.Model):
 
 class Cake(models.Model):
     title = models.CharField(max_length=50, verbose_name="Название")
-    level = models.OneToOneField(Level, on_delete=models.SET_NULL, null=True)
-    shape = models.OneToOneField(Shape, on_delete=models.SET_NULL, null=True)
-    topping = models.OneToOneField(Topping, on_delete=models.SET_NULL, null=True)
-    berries = models.OneToOneField(Berries, on_delete=models.SET_NULL, null=True, blank=True)
-    decor = models.OneToOneField(Decor, on_delete=models.SET_NULL, null=True, blank=True)
+    level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    shape = models.ForeignKey(Shape, on_delete=models.SET_NULL, null=True)
+    topping = models.ForeignKey(Topping, on_delete=models.SET_NULL, null=True)
+    berries = models.ForeignKey(Berries, on_delete=models.SET_NULL, null=True, blank=True)
+    decor = models.ForeignKey(Decor, on_delete=models.SET_NULL, null=True, blank=True)
     text = models.TextField(verbose_name="Надпись на торте", max_length=200, null=True, blank=True)
     end_price = models.FloatField(default=0.0, verbose_name="Итоговая цена")
     image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", null=True, blank=True)
@@ -96,7 +96,7 @@ class Client(models.Model):
         verbose_name_plural = "Заказчики"
 
     def __str__(self):
-        if self.username:
+        if self.name:
             return f'@{self.name}'
         else:
             return f'{self.telegram_id}'
@@ -110,14 +110,14 @@ class Order(models.Model):
     delivery_time = models.IntegerField(verbose_name="Срок испольнения заказа", default=3)
     price = models.FloatField(verbose_name="Цена", default=0.0)
     comments = models.TextField(max_length=200, verbose_name="Комментарии")
-    status = models.TextField(max_length=30, verbose_name="Статус заказа")
+    status = models.CharField(max_length=30, verbose_name="Статус заказа")
 
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
     def __str__(self):
-        return f"Order #{self.number}"
+        return f"Order #{self.pk}"
 
 
 class LinkClick(models.Model):
