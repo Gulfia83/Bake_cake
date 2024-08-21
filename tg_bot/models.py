@@ -73,6 +73,7 @@ class Cake(models.Model):
     berries = models.ForeignKey(Berries, on_delete=models.SET_NULL, null=True, blank=True)
     decor = models.ForeignKey(Decor, on_delete=models.SET_NULL, null=True, blank=True)
     text = models.TextField(verbose_name="Надпись на торте", max_length=200, null=True, blank=True)
+    description = models.TextField(verbose_name="Описание торта", null=True, blank=True)
     end_price = models.FloatField(default=0.0, verbose_name="Итоговая цена")
     image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", null=True, blank=True)
     ready_to_order = models.BooleanField(default=False)
