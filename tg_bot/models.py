@@ -60,10 +60,10 @@ class Decor(models.Model):
 
 
 class Catalog(models.Model):
-    title = models.CharField(max_length=50, verbose_name="Название торта")
-    description = models.TextField(verbose_name="Описание")
-    price = models.FloatField(verbose_name="Цена")
-    image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта")
+    title = models.CharField(max_length=50, verbose_name="Название торта", blank=True, null=True)
+    description = models.TextField(verbose_name="Описание", blank=True, null=True)
+    price = models.FloatField(verbose_name="Цена", blank=True, null=True)
+    image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Каталог'
@@ -96,3 +96,36 @@ class LinkClick(models.Model):
 
     def __str__(self):
         return self.url
+
+
+class Client(models.Model):
+    name = models.CharField('ФИО', max_length=200)
+    email = models.EmailField('email', unique=True)
+    phone = models.CharField('Телефон', max_length=200)
+    telegram_id = models.CharField('телеграмм ID', max_length=50)
+    address = models.TextField('адрес')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Клиент'
+        verbose_name_plural = 'Клиенты'
+
+
+class Order(models.Model):
+    client = models.ForeignKey(Client,
+                               verbose_name='клиент',
+                               on_delete=models.CASCADE,
+                               related_name='orders')
+    date = models.DateField(auto_now_add=True)
+    address = models.TextField('адрес')
+    # box = models.OneToOneField(Box, on_delete=models.CASCADE, null=True, blank=True)
+    price = models.PositiveIntegerField('цена', null=True, blank=True)
+
+    def __str__(self):
+        return f'заказ {self.id}'
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
