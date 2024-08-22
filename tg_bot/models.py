@@ -86,6 +86,11 @@ class Cake(models.Model):
     image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", null=True, blank=True)
     ready_to_order = models.BooleanField(default=False)
 
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return None
+
     class Meta:
         verbose_name = "Торт"
         verbose_name_plural = "Торты"

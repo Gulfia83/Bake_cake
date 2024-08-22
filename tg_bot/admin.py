@@ -45,10 +45,9 @@ class CakeAdmin(admin.ModelAdmin):
     list_display = ["title", "level", "shape", "topping", "berries", "decor", "get_preview"]
 
     def get_preview(self, obj):
-
-        return format_html(
-           '<img src="{}" style="max-height: 200px;max-width: 200px">', obj.image.url
-           )
+        if obj.image:
+            return format_html('<img src="{}" style="max-height: 200px;max-width: 200px">', obj.image.url)
+        return "No image"
 
 
 @admin.register(LinkClick)
