@@ -1,4 +1,12 @@
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
+
+ORDER_CHOICES = (
+    ('todo', 'принять в работу'),
+    ('true', 'подтвержден'),
+    ('topay', 'выставить счет'),
+    ('false', 'отменен'),
+)
 
 
 class Level(models.Model):
@@ -6,7 +14,8 @@ class Level(models.Model):
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
     class Meta:
-        verbose_name_plural = 'Уровни'
+        verbose_name = "Уровень"
+        verbose_name_plural = "Уровни"
 
     def __str__(self):
         if self.number == 1:
@@ -20,7 +29,8 @@ class Shape(models.Model):
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
     class Meta:
-        verbose_name_plural = 'Форма'
+        verbose_name = "Форма"
+        verbose_name_plural = "Форма"
 
     def __str__(self):
         return self.name
@@ -31,7 +41,8 @@ class Topping(models.Model):
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
     class Meta:
-        verbose_name_plural = 'Топпинги'
+        verbose_name = "Топпинг"
+        verbose_name_plural = "Топпинги"
 
     def __str__(self):
         return self.name
@@ -42,7 +53,8 @@ class Berries(models.Model):
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
     class Meta:
-        verbose_name_plural = 'Ягоды'
+        verbose_name_plural = "Ягода"
+        verbose_name_plural = "Ягоды"
 
     def __str__(self):
         return self.name
@@ -53,40 +65,67 @@ class Decor(models.Model):
     price = models.FloatField(verbose_name="Цена", default=0.0)
 
     class Meta:
-        verbose_name_plural = 'Декор'
+        verbose_name = "Декор"
+        verbose_name_plural = "Декор"
 
     def __str__(self):
         return self.name
 
 
-class Catalog(models.Model):
-    title = models.CharField(max_length=50, verbose_name="Название торта", blank=True, null=True)
-    description = models.TextField(verbose_name="Описание", blank=True, null=True)
-    price = models.FloatField(verbose_name="Цена", blank=True, null=True)
-    image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", blank=True, null=True)
-
-    class Meta:
-        verbose_name_plural = 'Каталог'
-
-    def __str__(self):
-        return self.title
-
-
 class Cake(models.Model):
     title = models.CharField(max_length=50, verbose_name="Название")
-    level = models.OneToOneField(Level, on_delete=models.SET_NULL, null=True)
-    shape = models.OneToOneField(Shape, on_delete=models.SET_NULL, null=True)
-    topping = models.OneToOneField(Topping, on_delete=models.SET_NULL, null=True)
-    berries = models.OneToOneField(Berries, on_delete=models.SET_NULL, null=True, blank=True)
-    decor = models.OneToOneField(Decor, on_delete=models.SET_NULL, null=True, blank=True)
+    level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    shape = models.ForeignKey(Shape, on_delete=models.SET_NULL, null=True)
+    topping = models.ForeignKey(Topping, on_delete=models.SET_NULL, null=True)
+    berries = models.ForeignKey(Berries, on_delete=models.SET_NULL, null=True, blank=True)
+    decor = models.ForeignKey(Decor, on_delete=models.SET_NULL, null=True, blank=True)
     text = models.TextField(verbose_name="Надпись на торте", max_length=200, null=True, blank=True)
-    price = models.FloatField(default=0.0, verbose_name="Цена")
+    description = models.TextField(verbose_name="Описание торта", null=True, blank=True)
+    end_price = models.FloatField(default=0.0, verbose_name="Итоговая цена")
+    image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", null=True, blank=True)
+    ready_to_order = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name_plural = 'Торты'
+        verbose_name = "Торт"
+        verbose_name_plural = "Торты"
 
     def __str__(self):
         return self.title
+
+
+class Client(models.Model):
+    telegram_id = models.CharField(max_length=50, unique=True, verbose_name="Телеграм ID")
+    name = models.CharField(max_length=200, verbose_name="ФИО")
+    phonenumber = PhoneNumberField(region="RU", blank=True, verbose_name="Телефон")
+
+    class Meta:
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
+
+    def __str__(self):
+        if self.name:
+            return f'@{self.name}'
+        else:
+            return f'{self.telegram_id}'
+
+
+class Order(models.Model):
+    cake = models.ForeignKey(Cake, verbose_name="Заказанный торт", on_delete=models.PROTECT)
+    client = models.ForeignKey(Client, verbose_name="Клиент", on_delete=models.CASCADE,
+                               related_name="orders")
+    address = models.TextField(verbose_name="Адрес доставки")
+    created_at = models.DateTimeField(verbose_name="Дата создания заказа", auto_now_add=True)
+    delivery_time = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
+    price = models.FloatField(verbose_name="Цена", default=0.0)
+    comments = models.TextField(max_length=200, verbose_name="Комментарии")
+    status = models.CharField(max_length=30, choices=ORDER_CHOICES, verbose_name="Статус заказа")
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+    def __str__(self):
+        return f"Order #{self.pk}"
 
 
 class LinkClick(models.Model):
@@ -96,36 +135,3 @@ class LinkClick(models.Model):
 
     def __str__(self):
         return self.url
-
-
-class Client(models.Model):
-    name = models.CharField('ФИО', max_length=200)
-    email = models.EmailField('email', unique=True)
-    phone = models.CharField('Телефон', max_length=200)
-    telegram_id = models.CharField('телеграмм ID', max_length=50)
-    address = models.TextField('адрес')
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Клиент'
-        verbose_name_plural = 'Клиенты'
-
-
-class Order(models.Model):
-    client = models.ForeignKey(Client,
-                               verbose_name='клиент',
-                               on_delete=models.CASCADE,
-                               related_name='orders')
-    date = models.DateField(auto_now_add=True)
-    address = models.TextField('адрес')
-    # box = models.OneToOneField(Box, on_delete=models.CASCADE, null=True, blank=True)
-    price = models.PositiveIntegerField('цена', null=True, blank=True)
-
-    def __str__(self):
-        return f'заказ {self.id}'
-
-    class Meta:
-        verbose_name = 'Заказ'
-        verbose_name_plural = 'Заказы'
