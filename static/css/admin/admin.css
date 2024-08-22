@@ -1,0 +1,11 @@
+#header, .module caption {
+    background: #da87a9;
+}
+
+div.breadcrumbs {
+    background: #da87a9;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #da87a9;
+}
