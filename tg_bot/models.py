@@ -2,6 +2,14 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 
+ORDER_CHOICES = (
+    ('todo', 'принять в работу'),
+    ('true', 'подтвержден'),
+    ('topay', 'выставить счет'),
+    ('false', 'отменен'),
+)
+
+
 class Level(models.Model):
     number = models.IntegerField(verbose_name="Число уровней")
     price = models.FloatField(verbose_name="Цена", default=0.0)
@@ -90,7 +98,6 @@ class Client(models.Model):
     telegram_id = models.CharField(max_length=50, unique=True, verbose_name="Телеграм ID")
     name = models.CharField(max_length=200, verbose_name="ФИО")
     phonenumber = PhoneNumberField(region="RU", blank=True, verbose_name="Телефон")
-    address = models.TextField(verbose_name="Адрес")
 
     class Meta:
         verbose_name = "Заказчик"
@@ -108,10 +115,10 @@ class Order(models.Model):
     client = models.ForeignKey(Client, verbose_name="Заказчик", on_delete=models.CASCADE, related_name="orders")
     address = models.TextField(verbose_name="Адрес доставки")
     created_at = models.DateTimeField(verbose_name="Дата создания заказа", auto_now_add=True)
-    delivery_time = models.IntegerField(verbose_name="Срок испольнения заказа", default=3)
+    delivery_time = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
     price = models.FloatField(verbose_name="Цена", default=0.0)
-    comments = models.TextField(max_length=200, verbose_name="Комментарии")
-    status = models.CharField(max_length=30, verbose_name="Статус заказа")
+    comments = models.TextField(max_length=200, blank=True, null=True, verbose_name="Комментарии")
+    status = models.CharField(max_length=30, choices=ORDER_CHOICES, verbose_name="Статус заказа")
 
     class Meta:
         verbose_name = "Заказ"
