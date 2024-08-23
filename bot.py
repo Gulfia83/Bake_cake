@@ -1,4 +1,5 @@
 import os
+import logging
 import telegram
 import django
 from dotenv import load_dotenv
@@ -6,7 +7,13 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Callbac
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from django.db.models import Q
 
+
+
 from Bake_cake import settings
+
+# Включаем логирование
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Bake_cake.settings')
@@ -84,12 +91,13 @@ def show_cake(update: Update, context: CallbackContext) -> None:
 
     # Путь к файлу изображения на локальной машине
     photo_path = os.path.join(settings.MEDIA_ROOT, cake.image.name)
+    logger.info(f'Считывается фото с адреса: {photo_path}' )
 
     # Создаем кнопки навигации
     keyboard = [
-        [InlineKeyboardButton("Заказать", callback_data=f'order_ready_cake_{cake.id}')],
-        [InlineKeyboardButton("Предыдущий", callback_data='prev_cake'),
-         InlineKeyboardButton("Следующий", callback_data='next_cake')],
+        [InlineKeyboardButton("Заказать ✅", callback_data=f'order_ready_cake_{cake.id}')],
+        [InlineKeyboardButton("⮜   Предыдущий ", callback_data='prev_cake'),
+         InlineKeyboardButton("Следующий   ➤", callback_data='next_cake')],
         [InlineKeyboardButton("В главное меню", callback_data='menu_cakes')]
 
     ]
@@ -100,7 +108,7 @@ def show_cake(update: Update, context: CallbackContext) -> None:
         # Если да, редактируем сообщение с новым медиа
         with open(photo_path, 'rb') as photo:
             media = InputMediaPhoto(photo,
-                                    caption=f"{cake.title}\n\n{cake.description}\n\nЦена: {cake.end_price} руб.")
+                                    caption=f"🍰 ***{cake.title}***\n\n{cake.description}\n\n***Цена: {cake.end_price} руб.***", parse_mode='Markdown')
             query.edit_message_media(media=media, reply_markup=reply_markup)
     else:
         # Если нет, создаем новое сообщение с медиа
