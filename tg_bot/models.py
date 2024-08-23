@@ -2,6 +2,7 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 ORDER_CHOICES = (
+    ('under', 'на рассмотрении'),
     ('todo', 'принять в работу'),
     ('true', 'подтвержден'),
     ('topay', 'выставить счет'),
@@ -85,6 +86,11 @@ class Cake(models.Model):
     image = models.ImageField(upload_to="cakes", verbose_name="Изображение торта", null=True, blank=True)
     ready_to_order = models.BooleanField(default=False)
 
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return None
+
     class Meta:
         verbose_name = "Торт"
         verbose_name_plural = "Торты"
@@ -117,8 +123,9 @@ class Order(models.Model):
     created_at = models.DateTimeField(verbose_name="Дата создания заказа", auto_now_add=True)
     delivery_time = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
     price = models.FloatField(verbose_name="Цена", default=0.0)
-    comments = models.TextField(max_length=200, verbose_name="Комментарии")
-    status = models.CharField(max_length=30, choices=ORDER_CHOICES, verbose_name="Статус заказа")
+    comments = models.TextField(max_length=200, blank=True, null=True, verbose_name="Комментарии")
+    status = models.CharField(max_length=30, choices=ORDER_CHOICES,default=ORDER_CHOICES[0][0],
+                              verbose_name="Статус заказа")
 
     class Meta:
         verbose_name = "Заказ"

@@ -35,7 +35,7 @@ def main_menu_handler(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
     if query.data == 'consent_file':
-        with open("documents/согласие на обработку ПД.pdf", "rb") as file:
+        with open("static/согласие на обработку ПД.pdf", "rb") as file:
             query.message.reply_document(document=file, filename="согласие на обработку ПД.pdf")
     elif query.data == 'consent':
         selection_cakes(query)
@@ -93,7 +93,7 @@ def get_customization_cakes(query) -> None:
 def logic_customization(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    # telegram_id = query.from_user.id
+    telegram_id = query.from_user.id
 
     cake = context.user_data.get('selected_cake_id')
     if not cake:
@@ -218,46 +218,43 @@ def logic_ready_cakes(update: Update, context: CallbackContext) -> None:
 def new_order(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    query.message.reply_text('Торт выбран, а теперь необходимо представиться.')
-    query.message.reply_text('Пожалуйста, введите Ваше ФИО:')
-    context.user_data['awaiting_full_name'] = True
+    telegram_id = update.effective_user.id
+    if Client.objects.filter(telegram_id=telegram_id).exists():
+        client = Client.objects.get(telegram_id=telegram_id)
+        context.user_data['full_name'] = client.name
+        context.user_data['phone'] = client.phonenumber
+        context.user_data['client'] = client
+    else:
+        query.message.reply_text('Пожалуйста, введите Ваше ФИО:')
+        context.user_data['awaiting_full_name'] = True
+        context.user_data['awaiting_address'] = False
+        context.user_data['awaiting_phone'] = False
+        return
+    query.message.reply_text('Введите ваш адрес доставки:')
+    context.user_data['awaiting_address'] = True
 
 
 def handle_message(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    if query:
-        query.answer()
-        if context.user_data.get('selected_cake_id'):
-            process_cake(update, context)
-    else:
-        if context.user_data.get('awaiting_full_name'):
-            process_full_name(update, context)
-        elif context.user_data.get('awaiting_address'):
-            process_address(update, context)
-        elif context.user_data.get('awaiting_phone'):
-            process_phone_number(update, context)
-        elif context.user_data.get('selected_cake_id'):
-            process_cake(update, context)
+    message_text = update.message.text
 
-
-def process_full_name(update: Update, context: CallbackContext) -> None:
-    context.user_data['full_name'] = update.message.text
-    update.message.reply_text('Введите ваш адрес:')
-    context.user_data['awaiting_address'] = True
-    context.user_data['awaiting_full_name'] = False
-
-
-def process_address(update: Update, context: CallbackContext) -> None:
-    context.user_data['address'] = update.message.text
-    update.message.reply_text('Введите номер телефона:')
-    context.user_data['awaiting_phone'] = True
-    context.user_data['awaiting_address'] = False
-
-
-def process_phone_number(update: Update, context: CallbackContext) -> None:
-    context.user_data['phone'] = update.message.text
-    update.message.reply_text('Введите ваш электронный адрес:')
-    context.user_data['awaiting_phone'] = False
+    if context.user_data.get('awaiting_full_name'):
+        context.user_data['full_name'] = message_text
+        update.message.reply_text('Введите ваш номер телефона:')
+        context.user_data['awaiting_phone'] = True
+        context.user_data['awaiting_full_name'] = False
+        return
+    if context.user_data.get('awaiting_phone'):
+        context.user_data['phone'] = message_text
+        update.message.reply_text('Введите ваш адрес доставки:')
+        context.user_data['awaiting_address'] = True
+        context.user_data['awaiting_phone'] = False
+        return
+    if context.user_data.get('awaiting_address'):
+        context.user_data['address'] = message_text
+        update.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
+        context.user_data['awaiting_address'] = False
+        process_cake(update, context)
+        return
 
 
 def process_cake(update: Update, context: CallbackContext) -> None:
@@ -266,15 +263,19 @@ def process_cake(update: Update, context: CallbackContext) -> None:
     address = context.user_data['address']
     phone = context.user_data['phone']
     telegram_id = update.effective_user.id
-    if not Client.objects.filter(telegram_id=telegram_id).exists():
-        client = Client.objects.create(telegram_id=telegram_id, name=full_name, phonenumber=phone)
+    if not context.user_data.get('client'):
+        client = Client.objects.create(
+            telegram_id=telegram_id,
+            name=full_name,
+            phonenumber=phone)
     else:
-        client = Client.objects.get(telegram_id=telegram_id)
+        client = context.user_data['client']
 
     order = Order.objects.create(cake=cake, client=client, address=address, price=cake.end_price)
     update.message.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят.
 Спасибо за вашу заявку. Наш менеджер свяжется с вами.''')
     update.message.reply_text('Для запуска бота введите команду "/start"')
+    context.user_data.clear()
 
 
 def get_order_status(query) -> None:
@@ -312,7 +313,6 @@ if __name__ == '__main__':
     dispatcher.add_handler(CallbackQueryHandler(main_menu_handler, pattern='^(consent_file|consent|order_status)$'))
     dispatcher.add_handler(CallbackQueryHandler(show_handler, pattern='^(list_cakes|cake_customization|order_status|menu_cakes)$'))
     dispatcher.add_handler(CallbackQueryHandler(logic_ready_cakes, pattern=r'^cake_\d+$'))
-    dispatcher.add_handler(CallbackQueryHandler(handle_message, pattern=r'^(selected_cake_id)$'))
     dispatcher.add_handler(CallbackQueryHandler(logic_customization, pattern='^(cb_|level_|shape_|topping_|berries_|decor_|cb_finalize_order)'))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 

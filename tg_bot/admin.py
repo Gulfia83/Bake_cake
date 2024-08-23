@@ -1,14 +1,52 @@
 from django.contrib import admin
-from tg_bot.models import Level, Shape, Topping, Berries, Decor, Cake, LinkClick, Client, Order
+from django.utils.html import format_html
+from tg_bot.models import Level, Shape, Topping, Berries, Decor, Cake
+from tg_bot.models import LinkClick, Client, Order
 
-admin.site.register(Level)
-admin.site.register(Shape)
-admin.site.register(Topping)
-admin.site.register(Berries)
-admin.site.register(Decor)
-admin.site.register(Cake)
-admin.site.register(Client)
-admin.site.register(Order)
+
+@admin.register(Client)
+class ClientAdmin(admin.ModelAdmin):
+    list_display = ["telegram_id", "name"]
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ["id", "client", "created_at", "status"]
+
+
+@admin.register(Level)
+class LevelAdmin(admin.ModelAdmin):
+    list_display = ["number", "price"]
+
+
+@admin.register(Shape)
+class ShapeAdmin(admin.ModelAdmin):
+    list_display = ["name", "price"]
+
+
+@admin.register(Topping)
+class ToppingAdmin(admin.ModelAdmin):
+    list_display = ["name", "price"]
+
+
+@admin.register(Berries)
+class BerriesAdmin(admin.ModelAdmin):
+    list_display = ["name", "price"]
+
+
+@admin.register(Decor)
+class DecorAdmin(admin.ModelAdmin):
+    list_display = ["name", "price"]
+
+
+@admin.register(Cake)
+class CakeAdmin(admin.ModelAdmin):
+    list_display = ["title", "level", "shape", "topping", "berries", "decor", "get_preview"]
+
+    def get_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="max-height: 200px;max-width: 200px">', obj.image.url)
+        return "No image"
 
 
 @admin.register(LinkClick)
