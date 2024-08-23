@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
 from tg_bot.models import Level, Shape, Topping, Berries, Decor, Cake
 from tg_bot.models import LinkClick, Client, Order
 

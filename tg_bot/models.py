@@ -1,8 +1,8 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
-
 ORDER_CHOICES = (
+    ('under', 'на рассмотрении'),
     ('todo', 'принять в работу'),
     ('true', 'подтвержден'),
     ('topay', 'выставить счет'),
@@ -105,8 +105,8 @@ class Client(models.Model):
     phonenumber = PhoneNumberField(region="RU", blank=True, verbose_name="Телефон")
 
     class Meta:
-        verbose_name = "Заказчик"
-        verbose_name_plural = "Заказчики"
+        verbose_name = "Клиент"
+        verbose_name_plural = "Клиенты"
 
     def __str__(self):
         if self.name:
@@ -117,13 +117,15 @@ class Client(models.Model):
 
 class Order(models.Model):
     cake = models.ForeignKey(Cake, verbose_name="Заказанный торт", on_delete=models.PROTECT)
-    client = models.ForeignKey(Client, verbose_name="Заказчик", on_delete=models.CASCADE, related_name="orders")
+    client = models.ForeignKey(Client, verbose_name="Клиент", on_delete=models.CASCADE,
+                               related_name="orders")
     address = models.TextField(verbose_name="Адрес доставки")
     created_at = models.DateTimeField(verbose_name="Дата создания заказа", auto_now_add=True)
     delivery_time = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
     price = models.FloatField(verbose_name="Цена", default=0.0)
     comments = models.TextField(max_length=200, blank=True, null=True, verbose_name="Комментарии")
-    status = models.CharField(max_length=30, choices=ORDER_CHOICES, verbose_name="Статус заказа")
+    status = models.CharField(max_length=30, choices=ORDER_CHOICES,default=ORDER_CHOICES[0][0],
+                              verbose_name="Статус заказа")
 
     class Meta:
         verbose_name = "Заказ"
