@@ -4,14 +4,24 @@ from tg_bot.models import Level, Shape, Topping, Berries, Decor, Cake
 from tg_bot.models import LinkClick, Client, Order
 
 
+class ClientOrderInline(admin.TabularInline):
+    model = Order
+    fields = ["id", "created_at", "status"]
+
+
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
+    inlines = [
+        ClientOrderInline
+    ]
     list_display = ["telegram_id", "name"]
+    search_fields = ["telegram_id", "name"]
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["id", "client", "created_at", "status"]
+    readonly_fields = ["created_at"]
 
 
 @admin.register(Level)
