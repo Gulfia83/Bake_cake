@@ -251,8 +251,14 @@ def handle_message(update: Update, context: CallbackContext) -> None:
         return
     if context.user_data.get('awaiting_address'):
         context.user_data['address'] = message_text
-        update.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
+        update.message.reply_text('Есть ли у вас какие-нибудь комментарии?')
+        context.user_data['awaiting_comment'] = True
         context.user_data['awaiting_address'] = False
+        return
+    if context.user_data.get('awaiting_comment'):
+        context.user_data['comment'] = message_text
+        update.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
+        context.user_data['awaiting_comment'] = False
         process_cake(update, context)
         return
 
@@ -261,6 +267,7 @@ def process_cake(update: Update, context: CallbackContext) -> None:
     cake = context.user_data['selected_cake_id']
     full_name = context.user_data['full_name']
     address = context.user_data['address']
+    comments = context.user_data['comment']
     phone = context.user_data['phone']
     telegram_id = update.effective_user.id
     if not context.user_data.get('client'):
@@ -271,7 +278,7 @@ def process_cake(update: Update, context: CallbackContext) -> None:
     else:
         client = context.user_data['client']
 
-    order = Order.objects.create(cake=cake, client=client, address=address, price=cake.end_price)
+    order = Order.objects.create(cake=cake, client=client, address=address, price=cake.end_price, comments=comments)
     update.message.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят.
 Спасибо за вашу заявку. Наш менеджер свяжется с вами.''')
     update.message.reply_text('Для запуска бота введите команду "/start"')
