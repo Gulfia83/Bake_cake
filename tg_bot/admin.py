@@ -21,7 +21,7 @@ class ClientAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["id", "client", "created_at", "status"]
-    readonly_fields = ["created_at"]
+    readonly_fields = ['created_at']
 
 
 @admin.register(Level)

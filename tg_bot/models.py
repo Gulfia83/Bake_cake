@@ -1,6 +1,6 @@
 from django.db import models
-import datetime
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 ORDER_CHOICES = (
     ('under', 'на рассмотрении'),
@@ -121,11 +121,11 @@ class Order(models.Model):
     client = models.ForeignKey(Client, verbose_name="Клиент", on_delete=models.CASCADE,
                                related_name="orders")
     address = models.TextField(verbose_name="Адрес доставки")
-    created_at = models.DateTimeField(verbose_name="Дата создания заказа", default=datetime.datetime.now())
-    delivery_date = models.DateTimeField(verbose_name="Дата доставки", default=datetime.datetime.now() + datetime.timedelta(days=3))
+    created_at = models.DateTimeField(verbose_name="Дата создания заказа", default=timezone.now)
+    delivery_date = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
     price = models.FloatField(verbose_name="Цена", default=0.0)
     comments = models.TextField(max_length=200, blank=True, null=True, verbose_name="Комментарии")
-    status = models.CharField(max_length=30, choices=ORDER_CHOICES,default=ORDER_CHOICES[0][0],
+    status = models.CharField(max_length=30, choices=ORDER_CHOICES, default=ORDER_CHOICES[0][0],
                               verbose_name="Статус заказа")
 
     class Meta:
