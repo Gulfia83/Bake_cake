@@ -1,17 +1,21 @@
 import os
+import logging
 import telegram
 import django
 import requests
 from dotenv import load_dotenv
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, CallbackQuery
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, CallbackQuery, InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 from django.db.models import Q
 
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Bake_cake.settings')
 django.setup()
-
+from django.conf import settings
 from tg_bot.models import Client, Cake, Order, Level, Shape, Topping, Berries, Decor
+
+# Включаем логирование
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -28,8 +32,10 @@ def show_main_menu(message) -> None:
         [InlineKeyboardButton('Даю согласие на обработку данных', callback_data='consent')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    message.reply_text('Привет! Я бот bake_cake. Благодаря мне ты сможешь заказать на свой вкус любого рода торт. Такой торт, о котором ты мечтал, любой формы и цвета.\n'
-                       'И поэтому, прежде чем производить заказ, необходимо согласие на обработку данных. Чтобы мы смогли исполнить вашу мечту', reply_markup=reply_markup)
+    message.reply_text(
+        'Привет! Я бот bake_cake. Благодаря мне ты сможешь заказать на свой вкус любого рода торт. Такой торт, о котором ты мечтал, любой формы и цвета.\n'
+        'И поэтому, прежде чем производить заказ, необходимо согласие на обработку данных. Чтобы мы смогли исполнить вашу мечту',
+        reply_markup=reply_markup)
 
 
 def main_menu_handler(update: Update, context: CallbackContext) -> None:
@@ -57,23 +63,101 @@ def show_handler(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
     if query.data == 'list_cakes':
-        get_cakes(query)
+        buy_ready_cake(update, context)  # Передаем оба аргумента
     elif query.data == 'cake_customization':
         get_customization_cakes(query)
     elif query.data == 'menu_cakes':
         selection_cakes(query)
 
 
-def get_cakes(query) -> None:
-    cakes = Cake.objects.filter(ready_to_order=True)
-    keyboards = [[InlineKeyboardButton('Вернуться в главное меню', callback_data='menu_cakes')]]
-    for cake in cakes:
-        keyboard = [InlineKeyboardButton(f'{cake.id}. {cake.title} - {cake.end_price}',
-                                         callback_data=f'cake_{cake.id}')]
-        keyboards.append(keyboard)
-    reply_markup = InlineKeyboardMarkup(keyboards)
-    query.message.reply_text('Заказ будет готов в течении 3-х дней с 09:00 по 18:00. Выберите торт который вы хотите:',
-                             reply_markup=reply_markup)
+# def get_cakes(query) -> None:
+#     cakes = Cake.objects.filter(ready_to_order=True)
+#     keyboards = [[InlineKeyboardButton('Вернуться в главное меню', callback_data='menu_cakes')]]
+#     for cake in cakes:
+#         keyboard = [InlineKeyboardButton(f'{cake.id}. {cake.title} - {cake.end_price}',
+#                                          callback_data=f'cake_{cake.id}')]
+#         keyboards.append(keyboard)
+#     reply_markup = InlineKeyboardMarkup(keyboards)
+#     query.message.reply_text('Заказ будет готов в течении 3-х дней с 09:00 по 18:00. Выберите торт который вы хотите:',
+#                              reply_markup=reply_markup)
+
+# Обработка кнопки "Купить готовый торт"
+def buy_ready_cake(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    # Сохраняем все доступные торты в контексте пользователя
+    context.user_data['cakes'] = list(Cake.objects.filter(ready_to_order=True))
+    context.user_data['current_cake'] = 0  # Начинаем с первого торта
+
+    # Показываем первый торт
+    Show_ready_cakes(update, context)
+
+# Функция для показа текущего торта
+def Show_ready_cakes(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    cakes = context.user_data['cakes']
+    current_index = context.user_data['current_cake']
+    cake = cakes[current_index]
+
+    # Путь к файлу изображения на локальном компе
+    photo_path = os.path.join(settings.MEDIA_ROOT, cake.image.name)
+
+    if not os.path.exists(photo_path):
+        logger.error(f"Image not found: {photo_path}")
+        query.edit_message_text(text="Изображение торта не найдено.")
+        return
+
+    # Создаем кнопки навигации
+    keyboard = [
+        [InlineKeyboardButton("✔ Заказать ", callback_data=f'order_ready_cake_{cake.id}')],
+        [InlineKeyboardButton("◀ Предыдущий", callback_data='prev_cake'),
+         InlineKeyboardButton("Следующий ▶", callback_data='next_cake')],
+        [InlineKeyboardButton("Назад в меню", callback_data='selection_cakes')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Проверяем, содержит ли сообщение фото
+    if query.message.photo:
+        # Если да, редактируем сообщение с новым медиа
+        with open(photo_path, 'rb') as photo:
+            media = InputMediaPhoto(photo, caption=f"🍰 ***{cake.title}***\n\n{cake.description}\n\n"
+                                                   f"Цена: ***{cake.end_price} руб.***", parse_mode="Markdown")
+            query.edit_message_media(media=media, reply_markup=reply_markup)
+    else:
+        # Если нет, создаем новое сообщение с медиа
+        with open(photo_path, 'rb') as photo:
+            context.bot.send_photo(chat_id=query.message.chat_id, photo=photo,
+                                   caption=f"🍰 ***{cake.title}***\n\n{cake.description}\n\n"
+                                           f"Цена: ***{cake.end_price} руб.***", parse_mode="Markdown",
+                                   reply_markup=reply_markup)
+
+
+def order_ready_cake(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    cake_id = int(query.data.split('_')[-1])
+    cake = Cake.objects.get(id=cake_id)
+    context.user_data['selected_cake_id'] = cake
+
+    new_order(update, context)
+
+
+# Обработка кнопки "Следующий торт"
+def next_cake(update: Update, context: CallbackContext) -> None:
+    cakes = context.user_data['cakes']
+    context.user_data['current_cake'] = (context.user_data['current_cake'] + 1) % len(cakes)
+    Show_ready_cakes(update, context)
+
+
+# Обработка кнопки "Предыдущий торт"
+def prev_cake(update: Update, context: CallbackContext) -> None:
+    cakes = context.user_data['cakes']
+    context.user_data['current_cake'] = (context.user_data['current_cake'] - 1) % len(cakes)
+    Show_ready_cakes(update, context)
 
 
 def get_customization_cakes(query) -> None:
@@ -108,7 +192,8 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         else:
             levels = Level.objects.all()
             keyboard = [
-                [InlineKeyboardButton(f'{level.number} уровней - {level.price} руб.', callback_data=f'level_{level.id}')]
+                [InlineKeyboardButton(f'{level.number} уровней - {level.price} руб.',
+                                      callback_data=f'level_{level.id}')]
                 for level in levels]
             reply_markup = InlineKeyboardMarkup(keyboard)
             query.message.reply_text('Выберите уровень:', reply_markup=reply_markup)
@@ -146,8 +231,9 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
             query.message.reply_text(f'Вы уже выбрали Топпинг. Вы не можете выбрать это повторно.')
         else:
             toppings = Topping.objects.all()
-            keyboard = [[InlineKeyboardButton(f'{topping.name} - {topping.price} руб.', callback_data=f'topping_{topping.id}')]
-                        for topping in toppings]
+            keyboard = [
+                [InlineKeyboardButton(f'{topping.name} - {topping.price} руб.', callback_data=f'topping_{topping.id}')]
+                for topping in toppings]
             reply_markup = InlineKeyboardMarkup(keyboard)
             query.message.reply_text('Выберите топпинг торта:', reply_markup=reply_markup)
     elif query.data.startswith('topping_'):
@@ -217,8 +303,14 @@ def logic_ready_cakes(update: Update, context: CallbackContext) -> None:
 
 
 def new_order(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    query.answer()
+    # Добавил условие для универсальности: для готовых тортов нужна обработка callback query:
+    if update.callback_query:
+        query = update.callback_query
+        query.answer()
+        message = query.message
+    else:
+        message = update.message
+
     telegram_id = update.effective_user.id
     if Client.objects.filter(telegram_id=telegram_id).exists():
         client = Client.objects.get(telegram_id=telegram_id)
@@ -226,12 +318,12 @@ def new_order(update: Update, context: CallbackContext) -> None:
         context.user_data['phone'] = client.phonenumber
         context.user_data['client'] = client
     else:
-        query.message.reply_text('Пожалуйста, введите Ваше ФИО:')
+        message.reply_text('Пожалуйста, введите Ваше ФИО:')
         context.user_data['awaiting_full_name'] = True
         context.user_data['awaiting_address'] = False
         context.user_data['awaiting_phone'] = False
         return
-    query.message.reply_text('Введите ваш адрес доставки:')
+    message.reply_text('Введите ваш адрес доставки:')
     context.user_data['awaiting_address'] = True
 
 
@@ -424,6 +516,11 @@ def send_order_confirmation(chat_id: int, order_details: str, bot_token: str) ->
     else:
         print(f"Ошибка отправки сообщения: {response.text}")
 
+    # общий обработчик ошибок, чтобы видеть, если что - то не так
+def error_handler(update: Update, context: CallbackContext) -> None:
+    print(f'Update {update} caused error {context.error}')
+    dispatcher.add_error_handler(error_handler)
+
 
 if __name__ == '__main__':
     load_dotenv()
@@ -434,9 +531,22 @@ if __name__ == '__main__':
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CallbackQueryHandler(main_menu_handler, pattern='^(consent_file|consent|order_status)$'))
-    dispatcher.add_handler(CallbackQueryHandler(show_handler, pattern='^(list_cakes|cake_customization|order_status|menu_cakes)$'))
-    dispatcher.add_handler(CallbackQueryHandler(logic_ready_cakes, pattern=r'^cake_\d+$'))
-    dispatcher.add_handler(CallbackQueryHandler(logic_customization, pattern='^(cb_|level_|shape_|topping_|berries_|decor_|cb_finalize_order)'))
+
+
+    dispatcher.add_handler(CallbackQueryHandler(Show_ready_cakes, pattern='Show_ready_cakes'))
+    dispatcher.add_handler(CallbackQueryHandler(next_cake, pattern='next_cake'))
+    dispatcher.add_handler(CallbackQueryHandler(prev_cake, pattern='prev_cake'))
+    dispatcher.add_handler(CallbackQueryHandler(selection_cakes, pattern='selection_cakes'))
+    # dispatcher.add_handler(CallbackQueryHandler(order_ready_cake, pattern=r'order_ready_cake_\d+'))
+    dispatcher.add_handler(CallbackQueryHandler(logic_ready_cakes, pattern=r'order_ready_cake_\d+'))
+
+    dispatcher.add_handler(
+        CallbackQueryHandler(show_handler, pattern='^(list_cakes|cake_customization|order_status|menu_cakes)$'))
+
+    # dispatcher.add_handler(CallbackQueryHandler(logic_ready_cakes, pattern=r'^cake_\d+$'))
+
+    dispatcher.add_handler(CallbackQueryHandler(logic_customization,
+                                                pattern='^(cb_|level_|shape_|topping_|berries_|decor_|cb_finalize_order)'))
     dispatcher.add_handler(
         CallbackQueryHandler(handle_acceleration_response, pattern='^(accelerate_yes|accelerate_no)$'))
     dispatcher.add_handler(
@@ -448,7 +558,3 @@ if __name__ == '__main__':
     updater.start_polling()
     print('Бот в сети')
     updater.idle()
-
-
-
-
