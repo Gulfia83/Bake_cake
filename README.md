@@ -7,19 +7,19 @@ Telegram bot for ordering cakes. With the bot, you can order TTRT from the prese
 
 #### Start:
 
-![старт](https://github.com/user-attachments/assets/a1f1ee3d-281b-4526-8111-5a4a11b3462a)
+![старт](https://github.com/user-attachments/assets/866e1a14-f558-43c1-8e47-daa0c361a9d3)
 
 #### Choose from the cake catalog:
 
-![выбор из готовых тортов](https://github.com/user-attachments/assets/55880f5b-775e-4de5-87ea-ca846eeee7f1)
+![выбор из готовых тортов](https://github.com/user-attachments/assets/9fd4ce25-057b-4ee0-a234-447691f63e0f)
 
 #### Assemble a cake from the presented ingredients:
 
-![собрать свой торт](https://github.com/user-attachments/assets/fc767e2c-a671-4af0-9403-5430c9f03246)
+![собрать свой торт](https://github.com/user-attachments/assets/8806e15c-a220-47f5-893b-a6e86b01d6be)
 
 #### Ability to speed up delivery and choose the time
 
-![возможность ускорить доставку и выбрать время](https://github.com/user-attachments/assets/dabe6e4c-1e3f-41ec-9fe3-cf7c0686a06f)
+![возможность ускорить доставку и выбрать время](https://github.com/user-attachments/assets/e635feb4-f244-4413-998c-108dd2e3768b)
 
 ## How to install
 
@@ -56,11 +56,11 @@ python manage.py runserver
 
 #### Customers and their orders
 
-![админ панель клиента](https://github.com/user-attachments/assets/5d6c852a-0b15-4dcd-a124-eb9cfadee48b)
+![админ панель клиента](https://github.com/user-attachments/assets/5e7ff27b-827a-40dd-96f6-a1b42af1f88e)
 
 #### Cakes
 
-![админка торты](https://github.com/user-attachments/assets/94341dc8-f8c7-48c6-9fc4-27fb84f15156)
+![админка торты](https://github.com/user-attachments/assets/b4ee1ae8-b8b1-4c5a-8cc4-a0d68231a05d)
 
 ### Project goal
 
