@@ -257,19 +257,89 @@ def handle_message(update: Update, context: CallbackContext) -> None:
         return
     if context.user_data.get('awaiting_comment'):
         context.user_data['comment'] = message_text
-        update.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
+        update.message.reply_text('Ваши данные собраны. Срок выполнения заказа 3-(три) дня')
         context.user_data['awaiting_comment'] = False
-        process_cake(update, context)
+        process_address(update, context)
         return
 
 
+def process_address(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+        [InlineKeyboardButton("Да", callback_data='accelerate_yes')],
+        [InlineKeyboardButton("Нет", callback_data='accelerate_no')]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('Желаете ли вы ускорить процесс доставки?', reply_markup=reply_markup)
+
+
+def handle_acceleration_response(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    if query.data == 'accelerate_yes':
+        keyboard = [
+            [InlineKeyboardButton("Ускорить на 1 день", callback_data='accelerate_1_day')],
+            [InlineKeyboardButton("Ускорить на 2 дня", callback_data='accelerate_2_days')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.message.reply_text('Выберите вариант ускорения:', reply_markup=reply_markup)
+
+    elif query.data == 'accelerate_no':
+        query.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
+        process_cake(update, context)
+
+
+def handle_acceleration_days(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    if query.data == 'accelerate_1_day':
+        context.user_data['price_multiplier'] = 1.1
+        context.user_data['delivery_time'] = 2
+    elif query.data == 'accelerate_2_days':
+        context.user_data['price_multiplier'] = 1.2
+        context.user_data['delivery_time'] = 1
+
+    keyboard = [
+        [InlineKeyboardButton('с 09:00 до 12:00', callback_data='time_9_12')],
+        [InlineKeyboardButton('с 13:00 до 16:00', callback_data='time_13_16')],
+        [InlineKeyboardButton('с 17:00 до 20:00', callback_data='time_17_20')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.message.reply_text('Выберите удобное для вас время. Данное время будет добавлено в ваши комментарии',
+                             reply_markup=reply_markup)
+    handle_acceleration_times(update, context)
+
+
+def handle_acceleration_times(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    time_slot = query.data
+    if time_slot == 'time_9_12':
+        context.user_data['delivery_time_slot'] = 'Доставить с 09:00 до 12:00'
+    elif time_slot == 'time_13_16':
+        context.user_data['delivery_time_slot'] = 'Доставить с 13:00 до 16:00'
+    elif time_slot == 'time_17_20':
+        context.user_data['delivery_time_slot'] = 'Доставить с 17:00 до 20:00'
+    else:
+        return
+    query.message.reply_text('Ваш заказ будет ускорен. Обрабатываем заказ...')
+    process_cake(update, context)
+
+
 def process_cake(update: Update, context: CallbackContext) -> None:
+    time_ = context.user_data['delivery_time_slot']
     cake = context.user_data['selected_cake_id']
     full_name = context.user_data['full_name']
     address = context.user_data['address']
     comments = context.user_data['comment']
     phone = context.user_data['phone']
     telegram_id = update.effective_user.id
+
+    delivery_time = context.user_data.get('delivery_time', 3)
+    price_multiplier = context.user_data.get('price_multiplier', 1.0)
+
     if not context.user_data.get('client'):
         client = Client.objects.create(
             telegram_id=telegram_id,
@@ -277,11 +347,25 @@ def process_cake(update: Update, context: CallbackContext) -> None:
             phonenumber=phone)
     else:
         client = context.user_data['client']
+    final_price = cake.end_price * price_multiplier
 
-    order = Order.objects.create(cake=cake, client=client, address=address, price=cake.end_price, comments=comments)
-    update.message.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят.
-Спасибо за вашу заявку. Наш менеджер свяжется с вами.''')
-    update.message.reply_text('Для запуска бота введите команду "/start"')
+    order = Order.objects.create(
+        cake=cake,
+        client=client,
+        address=address,
+        delivery_time=delivery_time,
+        price=final_price,
+        comments=comments + f'\n{time_}',
+    )
+
+    if update.message:
+        reply_target = update.message
+    else:
+        reply_target = update.callback_query.message
+
+    reply_target.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят.
+    Спасибо за вашу заявку. Наш менеджер свяжется с вами.''')
+    reply_target.reply_text('Для запуска бота введите команду "/start"')
     context.user_data.clear()
 
 
@@ -321,6 +405,12 @@ if __name__ == '__main__':
     dispatcher.add_handler(CallbackQueryHandler(show_handler, pattern='^(list_cakes|cake_customization|order_status|menu_cakes)$'))
     dispatcher.add_handler(CallbackQueryHandler(logic_ready_cakes, pattern=r'^cake_\d+$'))
     dispatcher.add_handler(CallbackQueryHandler(logic_customization, pattern='^(cb_|level_|shape_|topping_|berries_|decor_|cb_finalize_order)'))
+    dispatcher.add_handler(
+        CallbackQueryHandler(handle_acceleration_response, pattern='^(accelerate_yes|accelerate_no)$'))
+    dispatcher.add_handler(
+        CallbackQueryHandler(handle_acceleration_days, pattern='^(accelerate_1_day|accelerate_2_days)$'))
+    dispatcher.add_handler(
+        CallbackQueryHandler(handle_acceleration_times, pattern='^(time_9_12|time_13_16|time_17_20)$'))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
     updater.start_polling()
