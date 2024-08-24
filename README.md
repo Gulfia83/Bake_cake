@@ -1,15 +1,17 @@
 # Bake_cake_bot
 [Russian](RU_README.md)
 
-A telegram bot for ordering cakes.
+Telegram bot for ordering cakes. With the bot, you can order TTRT from the presented catalog, or you can assemble the cake yourself from the presented parameters and ingredients. It is possible to change the delivery time and choose a convenient time slot. For an additional fee, you can add any inscription to the cake. With the bot, you can check the status of your orders. The bot sends notifications about new orders to the administrator.
 
-## Usage examples
+### Examples of use
 
 Start:
 
-Choose from a cake catalog:
+Choose from the cake catalog:
 
-Build a cake from the ingredients you choose:
+Assemble a cake from the presented ingredients:
+
+Ability to speed up delivery and choose the time
 
 ## How to install
 
@@ -17,13 +19,14 @@ Build a cake from the ingredients you choose:
 2. Install the necessary packages using `pip install -r requirements.txt`.
 3. Create a `.env` file in the root directory of the project.
 4. Add the following variables to the `.env` file:
-- `TG_BOT_CAKE` - your telegram bot token.
+- `TG_BOT_TOKEN` - your telegram bot token.
+- `TG_CHAT_ID` - Telegram ID of the admin (who will receive notifications about new orders)
 - `SECRET_KEY` - Default: '' (empty string).
-The secret key for installing Django. It is used to provide a cryptographic signature and must have a unique value.
+Secret key for Django installation. It is used to provide cryptographic signature and must have a unique value.
 
 django-admin startproject automatically adds a randomly generated SECRET_KEY to each new project.
 - `ALLOWED_HOSTS` - Default: [] (empty list).
-A list of strings representing the hostnames/domains that this Django site can serve. This is a security measure to prevent HTTP host header attacks, which are possible even with many seemingly safe web server configurations.
+List of strings representing hostnames/domains that this Django site can serve. This is a security measure to prevent HTTP host header attacks, which are possible even with many seemingly safe web server configurations.
 - `DEBUG` - One of the main functions of debug mode is to display detailed error pages. If your app throws an exception when DEBUG is True, Django will display a detailed traceback, including a lot of metadata about your environment, such as all currently defined Django settings (from settings.py)
 
 5. Run migrations with:
@@ -36,13 +39,20 @@ python manage.py migrate
 ```
 python manage.py createsuperuser
 ```
-7. To get started with the admin panel:
+7. To get started in the admin panel:
 
 ```
 python manage.py runserver
 ```
+### Example of display in the admin panel
 
-### Project Goal
+Customers and their orders
+
+
+Cakes
+
+
+### Project goal
 
 Team project on the online course for web developers [dvmn.org](https://dvmn.org/).
 
