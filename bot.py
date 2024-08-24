@@ -1,6 +1,7 @@
 import os
 import telegram
 import django
+import requests
 from dotenv import load_dotenv
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, CallbackQuery
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
@@ -317,11 +318,11 @@ def handle_acceleration_times(update: Update, context: CallbackContext) -> None:
     query.answer()
     time_slot = query.data
     if time_slot == 'time_9_12':
-        context.user_data['delivery_time_slot'] = 'Доставить с 09:00 до 12:00'
+        context.user_data['delivery_time_slot'] = 'с 09:00 до 12:00'
     elif time_slot == 'time_13_16':
-        context.user_data['delivery_time_slot'] = 'Доставить с 13:00 до 16:00'
+        context.user_data['delivery_time_slot'] = 'с 13:00 до 16:00'
     elif time_slot == 'time_17_20':
-        context.user_data['delivery_time_slot'] = 'Доставить с 17:00 до 20:00'
+        context.user_data['delivery_time_slot'] = 'с 17:00 до 20:00'
     else:
         return
     query.message.reply_text('Ваш заказ будет ускорен. Обрабатываем заказ...')
@@ -329,7 +330,10 @@ def handle_acceleration_times(update: Update, context: CallbackContext) -> None:
 
 
 def process_cake(update: Update, context: CallbackContext) -> None:
-    time_ = context.user_data['delivery_time_slot']
+    if not context.user_data.get('delivery_time_slot'):
+        time_ = None
+    else:
+        time_ = context.user_data['delivery_time_slot']
     cake = context.user_data['selected_cake_id']
     full_name = context.user_data['full_name']
     address = context.user_data['address']
@@ -353,9 +357,9 @@ def process_cake(update: Update, context: CallbackContext) -> None:
         cake=cake,
         client=client,
         address=address,
-        delivery_time=delivery_time,
+        delivery_date=delivery_time,
         price=final_price,
-        comments=comments + f'\n{time_}',
+        comments=comments + f'\n    Просьба доставить - {time_}',
     )
 
     if update.message:
@@ -366,6 +370,20 @@ def process_cake(update: Update, context: CallbackContext) -> None:
     reply_target.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят.
     Спасибо за вашу заявку. Наш менеджер свяжется с вами.''')
     reply_target.reply_text('Для запуска бота введите команду "/start"')
+
+    chat_id = os.environ['TG_ID']
+    order_details = f"""Получен новый заказ
+    № - {order.id}
+    Клиент: {order.client.name}
+    Номер телефона: {order.client.phonenumber}
+    Торт: {order.cake.title}
+    Цена: {order.price}
+    Адрес доставки: {order.address}
+    Комментарии: {order.comments}
+    Дата создания заказа: {order.created_at}
+    Сделать торт за дн.: {order.delivery_date}
+    """
+    send_order_confirmation(chat_id, order_details, telegram_api)
     context.user_data.clear()
 
 
@@ -393,6 +411,20 @@ def update_main_menu(message) -> None:
     message.reply_text('Вами ранее уже был произведен заказ, хотите заказать еще?', reply_markup=reply_markup)
 
 
+def send_order_confirmation(chat_id: int, order_details: str, bot_token: str) -> None:
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        'chat_id': chat_id,
+        'text': order_details,
+        'parse_mode': 'HTML'
+    }
+    response = requests.post(url, data=payload)
+    if response.status_code == 200:
+        print("Сообщение успешно отправлено.")
+    else:
+        print(f"Ошибка отправки сообщения: {response.text}")
+
+
 if __name__ == '__main__':
     load_dotenv()
 
@@ -416,3 +448,7 @@ if __name__ == '__main__':
     updater.start_polling()
     print('Бот в сети')
     updater.idle()
+
+
+
+
