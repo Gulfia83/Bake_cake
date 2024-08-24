@@ -5,13 +5,21 @@ Telegram bot for ordering cakes. With the bot, you can order TTRT from the prese
 
 ### Examples of use
 
-Start:
+#### Start:
 
-Choose from the cake catalog:
+![старт](https://github.com/user-attachments/assets/a1f1ee3d-281b-4526-8111-5a4a11b3462a)
 
-Assemble a cake from the presented ingredients:
+#### Choose from the cake catalog:
 
-Ability to speed up delivery and choose the time
+![выбор из готовых тортов](https://github.com/user-attachments/assets/55880f5b-775e-4de5-87ea-ca846eeee7f1)
+
+#### Assemble a cake from the presented ingredients:
+
+![собрать свой торт](https://github.com/user-attachments/assets/fc767e2c-a671-4af0-9403-5430c9f03246)
+
+#### Ability to speed up delivery and choose the time
+
+![возможность ускорить доставку и выбрать время](https://github.com/user-attachments/assets/dabe6e4c-1e3f-41ec-9fe3-cf7c0686a06f)
 
 ## How to install
 
@@ -46,11 +54,13 @@ python manage.py runserver
 ```
 ### Example of display in the admin panel
 
-Customers and their orders
+#### Customers and their orders
 
+![админ панель клиента](https://github.com/user-attachments/assets/5d6c852a-0b15-4dcd-a124-eb9cfadee48b)
 
-Cakes
+#### Cakes
 
+![админка торты](https://github.com/user-attachments/assets/94341dc8-f8c7-48c6-9fc4-27fb84f15156)
 
 ### Project goal
 
