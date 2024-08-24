@@ -122,7 +122,7 @@ class Order(models.Model):
                                related_name="orders")
     address = models.TextField(verbose_name="Адрес доставки")
     created_at = models.DateTimeField(verbose_name="Дата создания заказа", default=timezone.now)
-    delivery_date = models.IntegerField(verbose_name="Срок исполнения заказа", default=3)
+    delivery_date = models.IntegerField(verbose_name="Срок исполнения заказа")
     price = models.FloatField(verbose_name="Цена", default=0.0)
     comments = models.TextField(max_length=200, blank=True, null=True, verbose_name="Комментарии")
     status = models.CharField(max_length=30, choices=ORDER_CHOICES, default=ORDER_CHOICES[0][0],
