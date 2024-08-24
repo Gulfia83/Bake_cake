@@ -6,16 +6,19 @@
 
 Старт:
 
+![старт](https://github.com/user-attachments/assets/2037c59a-24ff-4c77-8063-4f6d08c24f3e)
 
 Выбор из каталога тортов:
 
+![выбор из готовых тортов](https://github.com/user-attachments/assets/27f0a7ac-f94a-489f-8800-670f8bf8859b)
 
 Сборка торта из представленных на выбор ингредиентов:
 
+![собрать свой торт](https://github.com/user-attachments/assets/0f744c5f-b31a-4d52-8c58-87f9050bdd50)
 
 Возможность ускорить доставку и выбрать время
 
-
+![возможность ускорить доставку и выбрать время](https://github.com/user-attachments/assets/fba38632-b191-4472-8ef2-cf4d7c4ac2a3)
 
 ## Как установить
 
@@ -52,10 +55,11 @@ python manage.py runserver
 
 Клиенты и их заказы
 
+![админ панель клиента](https://github.com/user-attachments/assets/619e783e-aaf8-4644-849b-047b4d8ad9a0)
 
 Торты
 
-
+![админка торты](https://github.com/user-attachments/assets/03849c0e-1dc6-401e-81a2-9fdb4c60fda6)
 
 ### Цель проекта
 
