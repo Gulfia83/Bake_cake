@@ -39,10 +39,9 @@ def show_main_menu(message) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     message.reply_text('''Привет! Я бот bake_cake. Благодаря мне ты сможешь
-                       заказать торт, о котором ты мечтал.
-                       Прежде чем произвести заказ, необходимо согласие на
-                       обработку персональных данных.''',
-                       reply_markup=reply_markup)
+заказать торт, о котором ты мечтал.
+Прежде чем произвести заказ, необходимо согласие на
+обработку персональных данных.''', reply_markup=reply_markup)
 
 
 def main_menu_handler(update: Update, context: CallbackContext) -> None:
@@ -171,9 +170,8 @@ def get_customization_cakes(query) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.message.reply_text('''Соберите ваш торт. Пожалуйста, заполните
-                             обязательные поля. Мы можем разместить на торте
-                             любую надпись, например: "С днем рождения!" за дополнительную плату''',
-                             reply_markup=reply_markup)
+обязательные поля. Мы можем разместить на торте
+любую надпись, например: "С днем рождения!" за дополнительную плату''', reply_markup=reply_markup)
 
 
 def logic_customization(update: Update, context: CallbackContext) -> None:
@@ -207,7 +205,7 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         cake.save()
         query.message.reply_text(
             f'''Вы выбрали {level.number} уровень. Цена: {level.price} руб.
-            Общая стоимость: {cake.end_price} руб.'''
+Общая стоимость: {cake.end_price} руб.'''
             )
         get_customization_cakes(query)
 
@@ -230,7 +228,7 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         cake.save()
         query.message.reply_text(
             f'''Вы выбрали {shape.name}. Цена: {shape.price} руб.
-            Общая стоимость: {cake.end_price} руб.'''
+Общая стоимость: {cake.end_price} руб.'''
             )
         get_customization_cakes(query)
 
@@ -253,7 +251,7 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         cake.save()
         query.message.reply_text(
             f'''Вы выбрали {topping.name}. Цена: {topping.price} руб.
-            Общая стоимость: {cake.end_price} руб.'''
+Общая стоимость: {cake.end_price} руб.'''
             )
         get_customization_cakes(query)
 
@@ -276,7 +274,7 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         cake.save()
         query.message.reply_text(
             f'''Вы выбрали форму: {berry.name}. Цена: {berry.price} руб.
-            Общая стоимость: {cake.end_price} руб.'''
+Общая стоимость: {cake.end_price} руб.'''
             )
         get_customization_cakes(query)
 
@@ -298,7 +296,7 @@ def logic_customization(update: Update, context: CallbackContext) -> None:
         cake.save()
         query.message.reply_text(
             f'''Вы выбрали форму: {decor.name}. Стоимость: {decor.price} руб.
-            Текущая цена: {cake.end_price} руб.'''
+Текущая цена: {cake.end_price} руб.'''
             )
         get_customization_cakes(query)
 
@@ -378,7 +376,7 @@ def handle_message(update: Update, context: CallbackContext) -> None:
         cake.save()
         context.user_data['awaiting_text'] = False
         update.message.reply_text(f'''Вы ввели текст: "{cake.text}" по цене {text_price} руб.
-                                  Общая стоимость: {cake.end_price} руб.''')
+Общая стоимость: {cake.end_price} руб.''')
         get_customization_cakes(update)
         return
 
@@ -391,9 +389,8 @@ def process_address(update: Update, context: CallbackContext) -> None:
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('''У вас есть возможность изменить дату доставки.
-                              При этом цена будет увеличена.
-                              Желаете ли вы ускорить процесс доставки?''',
-                              reply_markup=reply_markup)
+При этом цена будет увеличена.
+Желаете ли вы ускорить процесс доставки?''', reply_markup=reply_markup)
 
 
 def handle_acceleration_response(update: Update, context: CallbackContext) -> None:
@@ -500,9 +497,8 @@ def process_cake(update: Update, context: CallbackContext) -> None:
     else:
         reply_target = update.callback_query.message
 
-    reply_target.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price}
-                            принят. Наш менеджер свяжется с вами для уточнения
-                            деталей.''')
+    reply_target.reply_text(f'''Ваш заказ - №{order.id} на сумму {order.price} принят. 
+Наш менеджер свяжется с вами для уточнения деталей.''')
     reply_target.reply_text('Для запуска бота введите команду "/start"')
 
     order_details = f"""Получен новый заказ
