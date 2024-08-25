@@ -3,7 +3,7 @@ import logging
 import telegram
 import django
 import requests
-from dotenv import load_dotenv
+from environs import Env
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, \
     InputMediaPhoto
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, \
@@ -568,7 +568,8 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 
 
 if __name__ == '__main__':
-    load_dotenv()
+    env = Env()
+    env.read_env()
 
     tg_chat_id = os.environ['TG_CHAT_ID']
     tg_bot_token = os.environ['TG_BOT_TOKEN']
