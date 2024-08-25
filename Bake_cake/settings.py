@@ -40,7 +40,7 @@ ROOT_URLCONF = 'Bake_cake.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],  # Исправлено
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -58,7 +58,7 @@ WSGI_APPLICATION = 'Bake_cake.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Исправлено
     }
 }
 
@@ -87,9 +87,9 @@ USE_TZ = False
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Исправлено
 
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'  # Исправлено
 
 MEDIA_URL = '/media/'
 

@@ -1,27 +1,22 @@
-# Используем официальный образ Python в качестве базового
 FROM python:3.11-slim
 
-# Устанавливаем рабочую директорию в контейнере
-WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Копируем файлы проекта в контейнер
-COPY . /app
+COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y nano
-
-# Устанавливаем зависимости проекта
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Устанавливаем переменные окружения для Django
+COPY . /app
+
+WORKDIR /app
+
 ENV DJANGO_SETTINGS_MODULE=Bake_cake.settings
 ENV PYTHONUNBUFFERED=1
 
-# Применяем миграции базы данных
-RUN python manage.py migrate
-# Даем права на выполнение скрипта
-RUN chmod +x /app/start.sh
-# Удаляем лишние команды
-# CMD ["/app/start.sh"]
+# RUN python manage.py migrate
 
-# Команда для запуска приложения может быть задана в docker-compose.yml
+RUN [ -f /app/start.sh ] && chmod +x /app/start.sh || echo "File /app/start.sh not found"
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
