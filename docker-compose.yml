@@ -1,14 +1,19 @@
-version: '3.8'
-
+version: '3'
 services:
-  bot:
+  web:
     build: .
+    command: /app/start.sh
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    env_file:
-      - .env
-    environment:
-      - DJANGO_SETTINGS_MODULE=Bake_cake.settings
+    restart: always
+
+  bot:
+    build: .
     command: /app/start.sh
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+    restart: always

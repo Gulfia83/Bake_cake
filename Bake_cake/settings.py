@@ -1,22 +1,20 @@
-# from pathlib import Path
+from pathlib import Path
 from environs import Env
-import os
+
 env = Env()
 env.read_env()
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Используем Path для путей
+BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '79.174.81.169')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['79.174.81.169', '79.174.85.209', '127.0.0.1'])
 
 SECRET_KEY = env.str('SECRET_KEY', 'REPLACE_ME')
 
 DEBUG = env.bool('DEBUG', True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,7 +42,7 @@ ROOT_URLCONF = 'Bake_cake.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],  # Исправлено
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,7 +60,7 @@ WSGI_APPLICATION = 'Bake_cake.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Исправлено
     }
 }
 
@@ -91,9 +89,9 @@ USE_TZ = False
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Исправлено
 
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'  # Исправлено
 
 MEDIA_URL = '/media/'
 
