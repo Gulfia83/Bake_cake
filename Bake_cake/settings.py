@@ -1,13 +1,22 @@
-from pathlib import Path
+# from pathlib import Path
+from environs import Env
+import os
+env = Env()
+env.read_env()
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-SECRET_KEY = 'django-insecure-d#&b2(g7-ly^g($35wqvx%6@t&&x(^lc+g2(r^kx5w&7dr$4^9'
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '79.174.81.169')
 
-DEBUG = True
+SECRET_KEY = env.str('SECRET_KEY', 'REPLACE_ME')
 
-ALLOWED_HOSTS = ['127.0.0.1']
+DEBUG = env.bool('DEBUG', True)
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
