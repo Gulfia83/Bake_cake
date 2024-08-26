@@ -413,8 +413,14 @@ def handle_acceleration_response(update: Update, context: CallbackContext) -> No
                                  reply_markup=reply_markup)
 
     elif query.data == 'accelerate_no':
-        query.message.reply_text('Ваши данные собраны. Обрабатываем заказ...')
-        process_cake(update, context)
+        keyboard = [
+            [InlineKeyboardButton('с 09:00 до 12:00', callback_data='time_9_12')],
+            [InlineKeyboardButton('с 13:00 до 16:00', callback_data='time_13_16')],
+            [InlineKeyboardButton('с 17:00 до 20:00', callback_data='time_17_20')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        query.message.reply_text('Выберите удобное для вас время доставки...', reply_markup=reply_markup)
+        handle_acceleration_times(update, context)
 
     elif query.data == 'order_cancellation':
         query.message.reply_text('Ваш заказ отменён. Для повторного заказа нажмите /start')
@@ -455,7 +461,7 @@ def handle_acceleration_times(update: Update, context: CallbackContext) -> None:
         context.user_data['delivery_time_slot'] = 'с 17:00 до 20:00'
     else:
         return
-    query.message.reply_text('Ваш заказ будет ускорен. Обрабатываем заказ...')
+    query.message.reply_text('Ваш заказ принят. Обрабатываем заказ...')
     process_cake(update, context)
 
 
