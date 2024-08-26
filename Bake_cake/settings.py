@@ -1,13 +1,18 @@
 from pathlib import Path
+from environs import Env
+
+
+env = Env()
+env.read_env()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-d#&b2(g7-ly^g($35wqvx%6@t&&x(^lc+g2(r^kx5w&7dr$4^9'
+SECRET_KEY = env.str('SECRET_KEY')
 
-DEBUG = True
+DEBUG = env.bool('DEBUG', False)
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', [])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -35,7 +40,7 @@ ROOT_URLCONF = 'Bake_cake.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],  # Исправлено
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -53,7 +58,7 @@ WSGI_APPLICATION = 'Bake_cake.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Исправлено
     }
 }
 
@@ -82,9 +87,9 @@ USE_TZ = False
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Исправлено
 
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'  # Исправлено
 
 MEDIA_URL = '/media/'
 

@@ -6,7 +6,7 @@ from tg_bot.models import LinkClick, Client, Order
 
 class ClientOrderInline(admin.TabularInline):
     model = Order
-    fields = ["id", "created_at", "delivery_date", "status"]
+    fields = ["id", "created_at", "production_time", "status"]
 
 
 @admin.register(Client)
